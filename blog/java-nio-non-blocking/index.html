@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="vi" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Java NIO: Xử lý kết nối mạng Non-Blocking | Blog Lập Trình Mạng</title>
+<meta name="keywords" content="Java, Networking, NIO">
+<meta name="description" content="Giới thiệu
+Trong các ứng dụng mạng truyền thống viết bằng Java I/O, mỗi kết nối từ client sẽ được gắn với một thread riêng. Cách tiếp cận này đơn giản nhưng có nhược điểm: khi số lượng kết nối tăng lên hàng nghìn, ứng dụng sẽ tiêu tốn rất nhiều bộ nhớ và CPU để quản lý thread.
+Để giải quyết vấn đề này, từ Java 1.4, gói Java NIO (New I/O) được giới thiệu. NIO cho phép xử lý non-blocking I/O, nghĩa là một thread có thể quản lý nhiều kết nối cùng lúc, giúp ứng dụng mở rộng (scalable) hơn.">
+<meta name="author" content="">
+<link rel="canonical" href="https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/">
+<link crossorigin="anonymous" href="/Blog-Mang/assets/css/stylesheet.2211ca3164be7830024f6aad2b3a2e520843a64f8f048445c3401c1249aa051d.css" integrity="sha256-IhHKMWS&#43;eDACT2qtKzouUghDpk&#43;PBIRFw0AcEkmqBR0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://hungson1002.github.io/Blog-Mang/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://hungson1002.github.io/Blog-Mang/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://hungson1002.github.io/Blog-Mang/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://hungson1002.github.io/Blog-Mang/apple-touch-icon.png">
+<link rel="mask-icon" href="https://hungson1002.github.io/Blog-Mang/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="vi" href="https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="/Blog-Mang/css/custom.min.92463d3042cb523b4e43887053e2563d6060fe3a2f96bd3d0e2879a2337831c2.css">
+
+<script defer>
+
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('table').forEach(tbl => {
+		const rows = Array.from(tbl.rows);
+		if (!rows.length) return;
+		
+		const lastCells = rows.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+		if (!lastCells.length) return;
+		const allEmpty = lastCells.every(c => {
+			
+			const textEmpty = c.textContent.trim() === '';
+			const hasContentEl = c.querySelector('img, code, pre, a, strong, em, span:not(:empty)');
+			return textEmpty && !hasContentEl;
+		});
+		if (allEmpty) {
+			lastCells.forEach(c => c.remove());
+			
+			const rows2 = Array.from(tbl.rows);
+			if (rows2.length) {
+				const lastCells2 = rows2.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+				const allEmpty2 = lastCells2.every(c => c.textContent.trim() === '' && !c.querySelector('img,code,pre,a,strong,em,span:not(:empty)'));
+				if (allEmpty2) lastCells2.forEach(c => c.remove());
+			}
+		}
+	});
+	
+	const hdr = document.querySelector('.header');
+	if (hdr) {
+		let lastY = window.scrollY;
+		const onScroll = () => {
+			const y = window.scrollY;
+			
+			if (y > 10) hdr.classList.add('is-scrolled'); else hdr.classList.remove('is-scrolled');
+			
+			if (y > lastY && y > 64) {
+				
+				hdr.classList.add('is-hidden');
+			} else {
+				
+				hdr.classList.remove('is-hidden');
+			}
+			lastY = y;
+		};
+		
+		const setOffset = () => {
+			const h = hdr.getBoundingClientRect().height; 
+			document.documentElement.style.setProperty('--dynamic-header-space', (h + 12) + 'px');
+		};
+		setOffset();
+		window.addEventListener('resize', setOffset, { passive: true });
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+});
+</script>
+<meta property="og:url" content="https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/">
+  <meta property="og:site_name" content="Blog Lập Trình Mạng">
+  <meta property="og:title" content="Java NIO: Xử lý kết nối mạng Non-Blocking">
+  <meta property="og:description" content="Giới thiệu Trong các ứng dụng mạng truyền thống viết bằng Java I/O, mỗi kết nối từ client sẽ được gắn với một thread riêng. Cách tiếp cận này đơn giản nhưng có nhược điểm: khi số lượng kết nối tăng lên hàng nghìn, ứng dụng sẽ tiêu tốn rất nhiều bộ nhớ và CPU để quản lý thread.
+Để giải quyết vấn đề này, từ Java 1.4, gói Java NIO (New I/O) được giới thiệu. NIO cho phép xử lý non-blocking I/O, nghĩa là một thread có thể quản lý nhiều kết nối cùng lúc, giúp ứng dụng mở rộng (scalable) hơn.">
+  <meta property="og:locale" content="vi">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:tag" content="Java">
+    <meta property="article:tag" content="Networking">
+    <meta property="article:tag" content="NIO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java NIO: Xử lý kết nối mạng Non-Blocking">
+<meta name="twitter:description" content="Giới thiệu
+Trong các ứng dụng mạng truyền thống viết bằng Java I/O, mỗi kết nối từ client sẽ được gắn với một thread riêng. Cách tiếp cận này đơn giản nhưng có nhược điểm: khi số lượng kết nối tăng lên hàng nghìn, ứng dụng sẽ tiêu tốn rất nhiều bộ nhớ và CPU để quản lý thread.
+Để giải quyết vấn đề này, từ Java 1.4, gói Java NIO (New I/O) được giới thiệu. NIO cho phép xử lý non-blocking I/O, nghĩa là một thread có thể quản lý nhiều kết nối cùng lúc, giúp ứng dụng mở rộng (scalable) hơn.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Java NIO: Xử lý kết nối mạng Non-Blocking",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Java NIO: Xử lý kết nối mạng Non-Blocking",
+  "name": "Java NIO: Xử lý kết nối mạng Non-Blocking",
+  "description": "Giới thiệu Trong các ứng dụng mạng truyền thống viết bằng Java I/O, mỗi kết nối từ client sẽ được gắn với một thread riêng. Cách tiếp cận này đơn giản nhưng có nhược điểm: khi số lượng kết nối tăng lên hàng nghìn, ứng dụng sẽ tiêu tốn rất nhiều bộ nhớ và CPU để quản lý thread.\nĐể giải quyết vấn đề này, từ Java 1.4, gói Java NIO (New I/O) được giới thiệu. NIO cho phép xử lý non-blocking I/O, nghĩa là một thread có thể quản lý nhiều kết nối cùng lúc, giúp ứng dụng mở rộng (scalable) hơn.\n",
+  "keywords": [
+    "Java", "Networking", "NIO"
+  ],
+  "articleBody": "Giới thiệu Trong các ứng dụng mạng truyền thống viết bằng Java I/O, mỗi kết nối từ client sẽ được gắn với một thread riêng. Cách tiếp cận này đơn giản nhưng có nhược điểm: khi số lượng kết nối tăng lên hàng nghìn, ứng dụng sẽ tiêu tốn rất nhiều bộ nhớ và CPU để quản lý thread.\nĐể giải quyết vấn đề này, từ Java 1.4, gói Java NIO (New I/O) được giới thiệu. NIO cho phép xử lý non-blocking I/O, nghĩa là một thread có thể quản lý nhiều kết nối cùng lúc, giúp ứng dụng mở rộng (scalable) hơn.\nTrong bài viết này, chúng ta sẽ tìm hiểu:\nNguyên lý hoạt động của Java NIO. Các thành phần chính: Buffer, Channel, Selector. Ví dụ xây dựng server non-blocking bằng Java. So sánh I/O truyền thống và NIO. Ứng dụng thực tế. Nguyên lý hoạt động của Java NIO Trong mô hình NIO:\nChannel thay thế cho Stream: dữ liệu có thể đọc/ghi hai chiều. Buffer là nơi lưu dữ liệu đọc/ghi. Selector giúp một thread theo dõi nhiều channel và xử lý khi có sự kiện (như kết nối mới, dữ liệu đến). Thay vì blocking trên từng kết nối, thread chính chỉ nghe sự kiện và xử lý khi cần → tiết kiệm tài nguyên.\nCác thành phần chính của Java NIO Thành phần Mô tả Ví dụ class trong Java Buffer Vùng nhớ tạm để đọc/ghi dữ liệu ByteBuffer, CharBuffer Channel Đại diện cho kết nối tới socket hoặc file, đọc/ghi dữ liệu vào Buffer SocketChannel, ServerSocketChannel Selector Cho phép một thread giám sát nhiều channel, xử lý khi có sự kiện Selector Ví dụ code Server non-blocking với Java NIO\nimport java.net.InetSocketAddress; import java.nio.ByteBuffer; import java.nio.channels.SelectionKey; import java.nio.channels.Selector; import java.nio.channels.ServerSocketChannel; import java.nio.channels.SocketChannel; import java.util.Iterator; public class NIOServer { public static void main(String[] args) throws Exception { Selector selector = Selector.open(); ServerSocketChannel server = ServerSocketChannel.open(); server.bind(new InetSocketAddress(9000)); server.configureBlocking(false); server.register(selector, SelectionKey.OP_ACCEPT); System.out.println(\"Server NIO đang chạy...\"); while (true) { selector.select(); Iterator\u003cSelectionKey\u003e it = selector.selectedKeys().iterator(); while (it.hasNext()) { SelectionKey key = it.next(); it.remove(); if (key.isAcceptable()) { SocketChannel client = server.accept(); client.configureBlocking(false); client.register(selector, SelectionKey.OP_READ); System.out.println(\"Client kết nối: \" + client.getRemoteAddress()); } else if (key.isReadable()) { SocketChannel client = (SocketChannel) key.channel(); ByteBuffer buffer = ByteBuffer.allocate(256); int read = client.read(buffer); if (read == -1) { client.close(); } else { String msg = new String(buffer.array()).trim(); System.out.println(\"Nhận: \" + msg); } } } } } } So sánh Java I/O và Java NIO Tiêu chí Java I/O (Blocking) Java NIO (Non-Blocking) Mỗi kết nối cần thread riêng Có Không (1 thread có thể xử lý nhiều kết nối) Hiệu suất với nhiều client Thấp Cao Độ phức tạp code Đơn giản Phức tạp hơn Ứng dụng phù hợp Chương trình nhỏ, ít client Server lớn, chat, game online, web service Ứng dụng thực tế Java NIO là nền tảng cho nhiều framework mạnh mẽ:\nNetty: framework lập trình mạng hiệu suất cao, dùng trong nhiều hệ thống lớn.\nVert.x: framework reactive hỗ trợ xử lý đồng thời hàng nghìn kết nối.\nSpring WebFlux: reactive web framework dựa trên Reactor và NIO.\nKết luận Java NIO giúp ứng dụng mạng trong Java mở rộng quy mô và tiết kiệm tài nguyên nhờ mô hình non-blocking. Nếu bạn cần xây dựng server phục vụ hàng nghìn client đồng thời, NIO hoặc các framework dựa trên NIO là lựa chọn phù hợp.\nNgược lại, với các ứng dụng nhỏ, ít client, Java I/O truyền thống vẫn dễ triển khai và đủ mạnh.\n🚀 Nắm vững NIO không chỉ giúp bạn viết ứng dụng mạng tốt hơn mà còn mở đường để học các framework hiện đại như Netty hay Spring WebFlux.\n",
+  "wordCount" : "616",
+  "inLanguage": "vi",
+  "datePublished": "2025-09-14T00:00:00Z",
+  "dateModified": "2025-09-14T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Blog Lập Trình Mạng",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://hungson1002.github.io/Blog-Mang/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://hungson1002.github.io/Blog-Mang/" accesskey="h" title="Blog Lập Trình Mạng (Alt + H)">Blog Lập Trình Mạng</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/blog/" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/about/" title="Profile">
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header><main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://hungson1002.github.io/Blog-Mang/">Trang chủ</a>&nbsp;»&nbsp;<a href="https://hungson1002.github.io/Blog-Mang/blog/">Blog</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Java NIO: Xử lý kết nối mạng Non-Blocking
+    </h1>
+    <div class="post-meta"><span title='2025-09-14 00:00:00 +0000 UTC'>tháng 9 14, 2025</span>&nbsp;·&nbsp;3 phút
+
+</div>
+  </header> 
+  <div class="post-content"><h2 id="giới-thiệu">Giới thiệu<a hidden class="anchor" aria-hidden="true" href="#giới-thiệu">#</a></h2>
+<p>Trong các ứng dụng mạng truyền thống viết bằng <strong>Java I/O</strong>, mỗi kết nối từ client sẽ được gắn với một <strong>thread riêng</strong>. Cách tiếp cận này đơn giản nhưng có nhược điểm: khi số lượng kết nối tăng lên hàng nghìn, ứng dụng sẽ tiêu tốn rất nhiều bộ nhớ và CPU để quản lý thread.</p>
+<p>Để giải quyết vấn đề này, từ <strong>Java 1.4</strong>, gói <strong>Java NIO (New I/O)</strong> được giới thiệu. NIO cho phép xử lý <strong>non-blocking I/O</strong>, nghĩa là một thread có thể quản lý nhiều kết nối cùng lúc, giúp ứng dụng <strong>mở rộng (scalable)</strong> hơn.</p>
+<p>Trong bài viết này, chúng ta sẽ tìm hiểu:</p>
+<ol>
+<li>Nguyên lý hoạt động của Java NIO.</li>
+<li>Các thành phần chính: Buffer, Channel, Selector.</li>
+<li>Ví dụ xây dựng server non-blocking bằng Java.</li>
+<li>So sánh I/O truyền thống và NIO.</li>
+<li>Ứng dụng thực tế.</li>
+</ol>
+<hr>
+<h2 id="nguyên-lý-hoạt-động-của-java-nio">Nguyên lý hoạt động của Java NIO<a hidden class="anchor" aria-hidden="true" href="#nguyên-lý-hoạt-động-của-java-nio">#</a></h2>
+<p>Trong mô hình NIO:</p>
+<ul>
+<li><strong>Channel</strong> thay thế cho Stream: dữ liệu có thể đọc/ghi hai chiều.</li>
+<li><strong>Buffer</strong> là nơi lưu dữ liệu đọc/ghi.</li>
+<li><strong>Selector</strong> giúp một thread theo dõi nhiều channel và xử lý khi có sự kiện (như kết nối mới, dữ liệu đến).</li>
+</ul>
+<p>Thay vì blocking trên từng kết nối, thread chính chỉ <strong>nghe sự kiện</strong> và xử lý khi cần → tiết kiệm tài nguyên.</p>
+<hr>
+<h2 id="các-thành-phần-chính-của-java-nio">Các thành phần chính của Java NIO<a hidden class="anchor" aria-hidden="true" href="#các-thành-phần-chính-của-java-nio">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Thành phần</th>
+          <th>Mô tả</th>
+          <th>Ví dụ class trong Java</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Buffer</strong></td>
+          <td>Vùng nhớ tạm để đọc/ghi dữ liệu</td>
+          <td>ByteBuffer, CharBuffer</td>
+      </tr>
+      <tr>
+          <td><strong>Channel</strong></td>
+          <td>Đại diện cho kết nối tới socket hoặc file, đọc/ghi dữ liệu vào Buffer</td>
+          <td>SocketChannel, ServerSocketChannel</td>
+      </tr>
+      <tr>
+          <td><strong>Selector</strong></td>
+          <td>Cho phép một thread giám sát nhiều channel, xử lý khi có sự kiện</td>
+          <td>Selector</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="ví-dụ-code">Ví dụ code<a hidden class="anchor" aria-hidden="true" href="#ví-dụ-code">#</a></h2>
+<p><strong>Server non-blocking với Java NIO</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.net.InetSocketAddress;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.nio.ByteBuffer;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.nio.channels.SelectionKey;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.nio.channels.Selector;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.nio.channels.ServerSocketChannel;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.nio.channels.SocketChannel;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.Iterator;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NIOServer</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> Exception {
+</span></span><span style="display:flex;"><span>        Selector selector <span style="color:#f92672">=</span> Selector.<span style="color:#a6e22e">open</span>();
+</span></span><span style="display:flex;"><span>        ServerSocketChannel server <span style="color:#f92672">=</span> ServerSocketChannel.<span style="color:#a6e22e">open</span>();
+</span></span><span style="display:flex;"><span>        server.<span style="color:#a6e22e">bind</span>(<span style="color:#66d9ef">new</span> InetSocketAddress(9000));
+</span></span><span style="display:flex;"><span>        server.<span style="color:#a6e22e">configureBlocking</span>(<span style="color:#66d9ef">false</span>);
+</span></span><span style="display:flex;"><span>        server.<span style="color:#a6e22e">register</span>(selector, SelectionKey.<span style="color:#a6e22e">OP_ACCEPT</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Server NIO đang chạy...&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (<span style="color:#66d9ef">true</span>) {
+</span></span><span style="display:flex;"><span>            selector.<span style="color:#a6e22e">select</span>();
+</span></span><span style="display:flex;"><span>            Iterator<span style="color:#f92672">&lt;</span>SelectionKey<span style="color:#f92672">&gt;</span> it <span style="color:#f92672">=</span> selector.<span style="color:#a6e22e">selectedKeys</span>().<span style="color:#a6e22e">iterator</span>();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">while</span> (it.<span style="color:#a6e22e">hasNext</span>()) {
+</span></span><span style="display:flex;"><span>                SelectionKey key <span style="color:#f92672">=</span> it.<span style="color:#a6e22e">next</span>();
+</span></span><span style="display:flex;"><span>                it.<span style="color:#a6e22e">remove</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> (key.<span style="color:#a6e22e">isAcceptable</span>()) {
+</span></span><span style="display:flex;"><span>                    SocketChannel client <span style="color:#f92672">=</span> server.<span style="color:#a6e22e">accept</span>();
+</span></span><span style="display:flex;"><span>                    client.<span style="color:#a6e22e">configureBlocking</span>(<span style="color:#66d9ef">false</span>);
+</span></span><span style="display:flex;"><span>                    client.<span style="color:#a6e22e">register</span>(selector, SelectionKey.<span style="color:#a6e22e">OP_READ</span>);
+</span></span><span style="display:flex;"><span>                    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Client kết nối: &#34;</span> <span style="color:#f92672">+</span> client.<span style="color:#a6e22e">getRemoteAddress</span>());
+</span></span><span style="display:flex;"><span>                } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (key.<span style="color:#a6e22e">isReadable</span>()) {
+</span></span><span style="display:flex;"><span>                    SocketChannel client <span style="color:#f92672">=</span> (SocketChannel) key.<span style="color:#a6e22e">channel</span>();
+</span></span><span style="display:flex;"><span>                    ByteBuffer buffer <span style="color:#f92672">=</span> ByteBuffer.<span style="color:#a6e22e">allocate</span>(256);
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">int</span> read <span style="color:#f92672">=</span> client.<span style="color:#a6e22e">read</span>(buffer);
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">if</span> (read <span style="color:#f92672">==</span> <span style="color:#f92672">-</span>1) {
+</span></span><span style="display:flex;"><span>                        client.<span style="color:#a6e22e">close</span>();
+</span></span><span style="display:flex;"><span>                    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>                        String msg <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> String(buffer.<span style="color:#a6e22e">array</span>()).<span style="color:#a6e22e">trim</span>();
+</span></span><span style="display:flex;"><span>                        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Nhận: &#34;</span> <span style="color:#f92672">+</span> msg);
+</span></span><span style="display:flex;"><span>                    }
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="so-sánh-java-io-và-java-nio">So sánh Java I/O và Java NIO<a hidden class="anchor" aria-hidden="true" href="#so-sánh-java-io-và-java-nio">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Tiêu chí</th>
+          <th>Java I/O (Blocking)</th>
+          <th>Java NIO (Non-Blocking)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Mỗi kết nối cần thread riêng</td>
+          <td>Có</td>
+          <td>Không (1 thread có thể xử lý nhiều kết nối)</td>
+      </tr>
+      <tr>
+          <td>Hiệu suất với nhiều client</td>
+          <td>Thấp</td>
+          <td>Cao</td>
+      </tr>
+      <tr>
+          <td>Độ phức tạp code</td>
+          <td>Đơn giản</td>
+          <td>Phức tạp hơn</td>
+      </tr>
+      <tr>
+          <td>Ứng dụng phù hợp</td>
+          <td>Chương trình nhỏ, ít client</td>
+          <td>Server lớn, chat, game online, web service</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="ứng-dụng-thực-tế">Ứng dụng thực tế<a hidden class="anchor" aria-hidden="true" href="#ứng-dụng-thực-tế">#</a></h3>
+<ul>
+<li>
+<p>Java NIO là nền tảng cho nhiều framework mạnh mẽ:</p>
+</li>
+<li>
+<p>Netty: framework lập trình mạng hiệu suất cao, dùng trong nhiều hệ thống lớn.</p>
+</li>
+<li>
+<p>Vert.x: framework reactive hỗ trợ xử lý đồng thời hàng nghìn kết nối.</p>
+</li>
+<li>
+<p>Spring WebFlux: reactive web framework dựa trên Reactor và NIO.</p>
+</li>
+</ul>
+<h3 id="kết-luận">Kết luận<a hidden class="anchor" aria-hidden="true" href="#kết-luận">#</a></h3>
+<p>Java NIO giúp ứng dụng mạng trong Java mở rộng quy mô và tiết kiệm tài nguyên nhờ mô hình non-blocking.
+Nếu bạn cần xây dựng server phục vụ hàng nghìn client đồng thời, NIO hoặc các framework dựa trên NIO là lựa chọn phù hợp.</p>
+<p>Ngược lại, với các ứng dụng nhỏ, ít client, Java I/O truyền thống vẫn dễ triển khai và đủ mạnh.</p>
+<p>🚀 Nắm vững NIO không chỉ giúp bạn viết ứng dụng mạng tốt hơn mà còn mở đường để học các framework hiện đại như Netty hay Spring WebFlux.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/java/">Java</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/networking/">Networking</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/nio/">NIO</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/">
+    <span class="title">« Trang trước</span>
+    <br>
+    <span>Hiểu rõ Fetch API &amp; vấn đề CORS trong JavaScript</span>
+  </a>
+  <a class="next" href="https://hungson1002.github.io/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/">
+    <span class="title">Trang tiếp theo »</span>
+    <br>
+    <span>JDBC cơ bản: Kết nối Java với cơ sở dữ liệu</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://hungson1002.github.io/Blog-Mang/">Blog Lập Trình Mạng</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

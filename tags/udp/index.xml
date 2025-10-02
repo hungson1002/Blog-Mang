@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>UDP on Blog Lập Trình Mạng</title>
+    <link>https://hungson1002.github.io/Blog-Mang/tags/udp/</link>
+    <description>Recent content in UDP on Blog Lập Trình Mạng</description>
+    <generator>Hugo -- 0.150.0</generator>
+    <language>vi</language>
+    <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://hungson1002.github.io/Blog-Mang/tags/udp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TCP vs UDP trong Java: Nên chọn giao thức nào?</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/tcp-vs-udp-trong-java/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/tcp-vs-udp-trong-java/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong lập trình mạng, một trong những câu hỏi cơ bản nhưng rất quan trọng là: &lt;strong&gt;nên dùng TCP hay UDP để truyền dữ liệu?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Nếu bạn đang xây dựng một ứng dụng chat, một dịch vụ web, hay một trò chơi trực tuyến, việc lựa chọn đúng giao thức có thể ảnh hưởng lớn đến trải nghiệm người dùng. TCP và UDP đều nằm ở &lt;strong&gt;lớp vận chuyển (Transport Layer)&lt;/strong&gt; của mô hình OSI, nhưng bản chất hoạt động của chúng hoàn toàn khác nhau.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

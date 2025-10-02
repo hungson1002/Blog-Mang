@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>REST on Blog Lập Trình Mạng</title>
+    <link>https://hungson1002.github.io/Blog-Mang/tags/rest/</link>
+    <description>Recent content in REST on Blog Lập Trình Mạng</description>
+    <generator>Hugo -- 0.150.0</generator>
+    <language>vi</language>
+    <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://hungson1002.github.io/Blog-Mang/tags/rest/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>REST vs GraphQL: So sánh và cách lựa chọn</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/rest-vs-graphql/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/rest-vs-graphql/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong lập trình web và mobile, &lt;strong&gt;API&lt;/strong&gt; là cầu nối giữa client và server. Trong nhiều năm, &lt;strong&gt;REST (Representational State Transfer)&lt;/strong&gt; đã trở thành chuẩn mực. Tuy nhiên, khi ứng dụng ngày càng phức tạp, REST dần bộc lộ hạn chế.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;GraphQL&lt;/strong&gt; ra đời (2015, bởi Facebook) như một giải pháp thay thế REST, cho phép client &lt;strong&gt;yêu cầu chính xác dữ liệu cần thiết&lt;/strong&gt;. Ngày nay, nhiều công ty lớn như GitHub, Shopify, Twitter đều cung cấp API GraphQL.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

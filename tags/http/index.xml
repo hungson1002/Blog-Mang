@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>HTTP on Blog Lập Trình Mạng</title>
+    <link>https://hungson1002.github.io/Blog-Mang/tags/http/</link>
+    <description>Recent content in HTTP on Blog Lập Trình Mạng</description>
+    <generator>Hugo -- 0.150.0</generator>
+    <language>vi</language>
+    <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://hungson1002.github.io/Blog-Mang/tags/http/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tự xây dựng API HTTP siêu nhẹ với Java</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/api-http-don-gian-voi-java/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/api-http-don-gian-voi-java/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong thế giới lập trình hiện đại, &lt;strong&gt;API HTTP&lt;/strong&gt; đóng vai trò trung tâm: từ ứng dụng web, mobile cho đến hệ thống phân tán, mọi thứ đều giao tiếp thông qua HTTP. Thông thường, lập trình viên sẽ sử dụng các framework mạnh mẽ như &lt;strong&gt;Spring Boot&lt;/strong&gt;, &lt;strong&gt;Quarkus&lt;/strong&gt; hay &lt;strong&gt;Micronaut&lt;/strong&gt; để xây dựng API.&lt;/p&gt;
+&lt;p&gt;Tuy nhiên, đôi khi bạn chỉ cần một API nhỏ, nhanh gọn, để phục vụ demo, học tập hoặc viết thử nghiệm. Lúc này, sử dụng các framework lớn có thể là “quá sức”. Thay vào đó, chúng ta có thể tự viết một API siêu nhẹ bằng &lt;strong&gt;Java thuần&lt;/strong&gt; hoặc dùng thư viện tối giản như &lt;strong&gt;SparkJava&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

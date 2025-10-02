@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="vi" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Blog | Blog Lập Trình Mạng</title>
+<meta name="keywords" content="">
+<meta name="description" content="Danh sách các bài viết về Java &amp; JavaScript trong lập trình mạng sẽ xuất hiện ở đây.
+Chọn một bài để bắt đầu tìm hiểu 👇">
+<meta name="author" content="">
+<link rel="canonical" href="https://hungson1002.github.io/Blog-Mang/blog/">
+<link crossorigin="anonymous" href="/Blog-Mang/assets/css/stylesheet.2211ca3164be7830024f6aad2b3a2e520843a64f8f048445c3401c1249aa051d.css" integrity="sha256-IhHKMWS&#43;eDACT2qtKzouUghDpk&#43;PBIRFw0AcEkmqBR0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://hungson1002.github.io/Blog-Mang/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://hungson1002.github.io/Blog-Mang/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://hungson1002.github.io/Blog-Mang/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://hungson1002.github.io/Blog-Mang/apple-touch-icon.png">
+<link rel="mask-icon" href="https://hungson1002.github.io/Blog-Mang/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="https://hungson1002.github.io/Blog-Mang/blog/index.xml">
+<link rel="alternate" hreflang="vi" href="https://hungson1002.github.io/Blog-Mang/blog/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="/Blog-Mang/css/custom.min.92463d3042cb523b4e43887053e2563d6060fe3a2f96bd3d0e2879a2337831c2.css">
+
+<script defer>
+
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('table').forEach(tbl => {
+		const rows = Array.from(tbl.rows);
+		if (!rows.length) return;
+		
+		const lastCells = rows.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+		if (!lastCells.length) return;
+		const allEmpty = lastCells.every(c => {
+			
+			const textEmpty = c.textContent.trim() === '';
+			const hasContentEl = c.querySelector('img, code, pre, a, strong, em, span:not(:empty)');
+			return textEmpty && !hasContentEl;
+		});
+		if (allEmpty) {
+			lastCells.forEach(c => c.remove());
+			
+			const rows2 = Array.from(tbl.rows);
+			if (rows2.length) {
+				const lastCells2 = rows2.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+				const allEmpty2 = lastCells2.every(c => c.textContent.trim() === '' && !c.querySelector('img,code,pre,a,strong,em,span:not(:empty)'));
+				if (allEmpty2) lastCells2.forEach(c => c.remove());
+			}
+		}
+	});
+	
+	const hdr = document.querySelector('.header');
+	if (hdr) {
+		let lastY = window.scrollY;
+		const onScroll = () => {
+			const y = window.scrollY;
+			
+			if (y > 10) hdr.classList.add('is-scrolled'); else hdr.classList.remove('is-scrolled');
+			
+			if (y > lastY && y > 64) {
+				
+				hdr.classList.add('is-hidden');
+			} else {
+				
+				hdr.classList.remove('is-hidden');
+			}
+			lastY = y;
+		};
+		
+		const setOffset = () => {
+			const h = hdr.getBoundingClientRect().height; 
+			document.documentElement.style.setProperty('--dynamic-header-space', (h + 12) + 'px');
+		};
+		setOffset();
+		window.addEventListener('resize', setOffset, { passive: true });
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+});
+</script>
+<meta property="og:url" content="https://hungson1002.github.io/Blog-Mang/blog/">
+  <meta property="og:site_name" content="Blog Lập Trình Mạng">
+  <meta property="og:title" content="Blog">
+  <meta property="og:description" content="Danh sách các bài viết về Java &amp; JavaScript trong lập trình mạng sẽ xuất hiện ở đây.
+Chọn một bài để bắt đầu tìm hiểu 👇">
+  <meta property="og:locale" content="vi">
+  <meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Blog">
+<meta name="twitter:description" content="">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/"
+    }
+  ]
+}
+</script>
+</head>
+
+<body class="list" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://hungson1002.github.io/Blog-Mang/" accesskey="h" title="Blog Lập Trình Mạng (Alt + H)">Blog Lập Trình Mạng</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/blog/" title="Blog">
+                    <span class="active">Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/about/" title="Profile">
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header><main class="main">
+<section class="blog-archive">
+  <header class="archive-head">
+    <h1>Tất cả bài viết</h1>
+    <p class="archive-desc">Kho kiến thức lập trình mạng (9 bài)</p>
+  </header>
+
+  
+  <div class="post-list-full">
+    
+      
+<article class="post-card">
+  <header class="post-card__header">
+    <h3 class="post-card__title"><a href="/Blog-Mang/blog/bao-mat-xss-csrf/" class="post-card__title-link">Bảo mật Web: Ngăn chặn XSS &amp; CSRF với JavaScript</a></h3>
+    
+    <div class="post-card__tags">
+      <a class="tag" href="/tags/javascript/" aria-label="Tag JavaScript">JavaScript</a><a class="tag" href="/tags/security/" aria-label="Tag Security">Security</a><a class="tag" href="/tags/xss/" aria-label="Tag XSS">XSS</a>
+    </div>
+    
+  </header>
+  <a class="post-card__excerpt-link" href="/Blog-Mang/blog/bao-mat-xss-csrf/" aria-label="Bảo mật Web: Ngăn chặn XSS &amp; CSRF với JavaScript">
+    <p class="post-card__excerpt">Giới thiệu Trong thời đại web ngày nay, bảo mật ứng dụng là yếu tố sống còn. Hai trong số các lỗ hổng phổ biến nhất mà lập trình viên hay gặp phải là …</p>
+  </a>
+  <footer class="post-card__meta">
+    <span>2025-09-14</span>
+    <span>· 4 phút</span>
+  </footer>
+</article>
+
+    
+      
+<article class="post-card">
+  <header class="post-card__header">
+    <h3 class="post-card__title"><a href="/Blog-Mang/blog/fetch-api-cors-javascript/" class="post-card__title-link">Hiểu rõ Fetch API &amp; vấn đề CORS trong JavaScript</a></h3>
+    
+    <div class="post-card__tags">
+      <a class="tag" href="/tags/javascript/" aria-label="Tag JavaScript">JavaScript</a><a class="tag" href="/tags/fetch-api/" aria-label="Tag Fetch API">Fetch API</a><a class="tag" href="/tags/cors/" aria-label="Tag CORS">CORS</a>
+    </div>
+    
+  </header>
+  <a class="post-card__excerpt-link" href="/Blog-Mang/blog/fetch-api-cors-javascript/" aria-label="Hiểu rõ Fetch API &amp; vấn đề CORS trong JavaScript">
+    <p class="post-card__excerpt">Giới thiệu Trong lập trình web hiện đại, JavaScript đóng vai trò trung tâm trong việc giao tiếp giữa frontend và backend.
+Một trong những công cụ mạnh …</p>
+  </a>
+  <footer class="post-card__meta">
+    <span>2025-09-14</span>
+    <span>· 3 phút</span>
+  </footer>
+</article>
+
+    
+      
+<article class="post-card">
+  <header class="post-card__header">
+    <h3 class="post-card__title"><a href="/Blog-Mang/blog/java-nio-non-blocking/" class="post-card__title-link">Java NIO: Xử lý kết nối mạng Non-Blocking</a></h3>
+    
+    <div class="post-card__tags">
+      <a class="tag" href="/tags/java/" aria-label="Tag Java">Java</a><a class="tag" href="/tags/networking/" aria-label="Tag Networking">Networking</a><a class="tag" href="/tags/nio/" aria-label="Tag NIO">NIO</a>
+    </div>
+    
+  </header>
+  <a class="post-card__excerpt-link" href="/Blog-Mang/blog/java-nio-non-blocking/" aria-label="Java NIO: Xử lý kết nối mạng Non-Blocking">
+    <p class="post-card__excerpt">Giới thiệu Trong các ứng dụng mạng truyền thống viết bằng Java I/O, mỗi kết nối từ client sẽ được gắn với một thread riêng. Cách tiếp cận này đơn giản …</p>
+  </a>
+  <footer class="post-card__meta">
+    <span>2025-09-14</span>
+    <span>· 3 phút</span>
+  </footer>
+</article>
+
+    
+      
+<article class="post-card">
+  <header class="post-card__header">
+    <h3 class="post-card__title"><a href="/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/" class="post-card__title-link">JDBC cơ bản: Kết nối Java với cơ sở dữ liệu</a></h3>
+    
+    <div class="post-card__tags">
+      <a class="tag" href="/tags/java/" aria-label="Tag Java">Java</a><a class="tag" href="/tags/database/" aria-label="Tag Database">Database</a><a class="tag" href="/tags/jdbc/" aria-label="Tag JDBC">JDBC</a>
+    </div>
+    
+  </header>
+  <a class="post-card__excerpt-link" href="/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/" aria-label="JDBC cơ bản: Kết nối Java với cơ sở dữ liệu">
+    <p class="post-card__excerpt">Giới thiệu Trong lập trình ứng dụng, một nhu cầu rất phổ biến là làm việc với cơ sở dữ liệu (CSDL). Dữ liệu người dùng, sản phẩm, đơn hàng… đều cần …</p>
+  </a>
+  <footer class="post-card__meta">
+    <span>2025-09-14</span>
+    <span>· 4 phút</span>
+  </footer>
+</article>
+
+    
+      
+<article class="post-card">
+  <header class="post-card__header">
+    <h3 class="post-card__title"><a href="/Blog-Mang/blog/kiem-thu-junit-testcontainers/" class="post-card__title-link">Kiểm thử ứng dụng mạng bằng JUnit &amp; Testcontainers</a></h3>
+    
+    <div class="post-card__tags">
+      <a class="tag" href="/tags/java/" aria-label="Tag Java">Java</a><a class="tag" href="/tags/networking/" aria-label="Tag Networking">Networking</a><a class="tag" href="/tags/junit/" aria-label="Tag JUnit">JUnit</a>
+    </div>
+    
+  </header>
+  <a class="post-card__excerpt-link" href="/Blog-Mang/blog/kiem-thu-junit-testcontainers/" aria-label="Kiểm thử ứng dụng mạng bằng JUnit &amp; Testcontainers">
+    <p class="post-card__excerpt">Giới thiệu Trong phát triển phần mềm, viết code chỉ là bước đầu tiên. Quan trọng hơn là kiểm thử (testing) để đảm bảo hệ thống hoạt động đúng và ổn …</p>
+  </a>
+  <footer class="post-card__meta">
+    <span>2025-09-14</span>
+    <span>· 4 phút</span>
+  </footer>
+</article>
+
+    
+      
+<article class="post-card">
+  <header class="post-card__header">
+    <h3 class="post-card__title"><a href="/Blog-Mang/blog/rest-vs-graphql/" class="post-card__title-link">REST vs GraphQL: So sánh và cách lựa chọn</a></h3>
+    
+    <div class="post-card__tags">
+      <a class="tag" href="/tags/api/" aria-label="Tag API">API</a><a class="tag" href="/tags/rest/" aria-label="Tag REST">REST</a><a class="tag" href="/tags/graphql/" aria-label="Tag GraphQL">GraphQL</a>
+    </div>
+    
+  </header>
+  <a class="post-card__excerpt-link" href="/Blog-Mang/blog/rest-vs-graphql/" aria-label="REST vs GraphQL: So sánh và cách lựa chọn">
+    <p class="post-card__excerpt">Giới thiệu Trong lập trình web và mobile, API là cầu nối giữa client và server. Trong nhiều năm, REST (Representational State Transfer) đã trở thành …</p>
+  </a>
+  <footer class="post-card__meta">
+    <span>2025-09-14</span>
+    <span>· 3 phút</span>
+  </footer>
+</article>
+
+    
+      
+<article class="post-card">
+  <header class="post-card__header">
+    <h3 class="post-card__title"><a href="/Blog-Mang/blog/tcp-vs-udp-trong-java/" class="post-card__title-link">TCP vs UDP trong Java: Nên chọn giao thức nào?</a></h3>
+    
+    <div class="post-card__tags">
+      <a class="tag" href="/tags/java/" aria-label="Tag Java">Java</a><a class="tag" href="/tags/networking/" aria-label="Tag Networking">Networking</a><a class="tag" href="/tags/tcp/" aria-label="Tag TCP">TCP</a>
+    </div>
+    
+  </header>
+  <a class="post-card__excerpt-link" href="/Blog-Mang/blog/tcp-vs-udp-trong-java/" aria-label="TCP vs UDP trong Java: Nên chọn giao thức nào?">
+    <p class="post-card__excerpt">Giới thiệu Trong lập trình mạng, một trong những câu hỏi cơ bản nhưng rất quan trọng là: nên dùng TCP hay UDP để truyền dữ liệu?
+Nếu bạn đang xây dựng …</p>
+  </a>
+  <footer class="post-card__meta">
+    <span>2025-09-14</span>
+    <span>· 4 phút</span>
+  </footer>
+</article>
+
+    
+      
+<article class="post-card">
+  <header class="post-card__header">
+    <h3 class="post-card__title"><a href="/Blog-Mang/blog/api-http-don-gian-voi-java/" class="post-card__title-link">Tự xây dựng API HTTP siêu nhẹ với Java</a></h3>
+    
+    <div class="post-card__tags">
+      <a class="tag" href="/tags/java/" aria-label="Tag Java">Java</a><a class="tag" href="/tags/networking/" aria-label="Tag Networking">Networking</a><a class="tag" href="/tags/http/" aria-label="Tag HTTP">HTTP</a>
+    </div>
+    
+  </header>
+  <a class="post-card__excerpt-link" href="/Blog-Mang/blog/api-http-don-gian-voi-java/" aria-label="Tự xây dựng API HTTP siêu nhẹ với Java">
+    <p class="post-card__excerpt">Giới thiệu Trong thế giới lập trình hiện đại, API HTTP đóng vai trò trung tâm: từ ứng dụng web, mobile cho đến hệ thống phân tán, mọi thứ đều giao …</p>
+  </a>
+  <footer class="post-card__meta">
+    <span>2025-09-14</span>
+    <span>· 3 phút</span>
+  </footer>
+</article>
+
+    
+      
+<article class="post-card">
+  <header class="post-card__header">
+    <h3 class="post-card__title"><a href="/Blog-Mang/blog/websocket-nodejs-realtime/" class="post-card__title-link">WebSocket với Node.js: Giao tiếp real-time đơn giản</a></h3>
+    
+    <div class="post-card__tags">
+      <a class="tag" href="/tags/javascript/" aria-label="Tag JavaScript">JavaScript</a><a class="tag" href="/tags/node.js/" aria-label="Tag Node.js">Node.js</a><a class="tag" href="/tags/websocket/" aria-label="Tag WebSocket">WebSocket</a>
+    </div>
+    
+  </header>
+  <a class="post-card__excerpt-link" href="/Blog-Mang/blog/websocket-nodejs-realtime/" aria-label="WebSocket với Node.js: Giao tiếp real-time đơn giản">
+    <p class="post-card__excerpt">Giới thiệu Trong các ứng dụng hiện đại như chat online, game multiplayer, hay ứng dụng theo dõi chứng khoán, yêu cầu quan trọng là dữ liệu phải được …</p>
+  </a>
+  <footer class="post-card__meta">
+    <span>2025-09-14</span>
+    <span>· 3 phút</span>
+  </footer>
+</article>
+
+    
+  </div>
+
+  
+</section>
+
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://hungson1002.github.io/Blog-Mang/">Blog Lập Trình Mạng</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

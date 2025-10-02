@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="vi" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>JDBC cơ bản: Kết nối Java với cơ sở dữ liệu | Blog Lập Trình Mạng</title>
+<meta name="keywords" content="Java, Database, JDBC, SQL">
+<meta name="description" content="Giới thiệu
+Trong lập trình ứng dụng, một nhu cầu rất phổ biến là làm việc với cơ sở dữ liệu (CSDL). Dữ liệu người dùng, sản phẩm, đơn hàng… đều cần được lưu trữ và truy xuất hiệu quả.
+Trong Java, để kết nối và làm việc với CSDL, ta dùng JDBC (Java Database Connectivity) – một API chuẩn, có trong JDK từ những phiên bản đầu tiên. JDBC cho phép Java giao tiếp với hầu hết các hệ quản trị CSDL (MySQL, PostgreSQL, Oracle, SQL Server…) thông qua Driver tương ứng.">
+<meta name="author" content="">
+<link rel="canonical" href="https://hungson1002.github.io/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/">
+<link crossorigin="anonymous" href="/Blog-Mang/assets/css/stylesheet.2211ca3164be7830024f6aad2b3a2e520843a64f8f048445c3401c1249aa051d.css" integrity="sha256-IhHKMWS&#43;eDACT2qtKzouUghDpk&#43;PBIRFw0AcEkmqBR0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://hungson1002.github.io/Blog-Mang/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://hungson1002.github.io/Blog-Mang/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://hungson1002.github.io/Blog-Mang/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://hungson1002.github.io/Blog-Mang/apple-touch-icon.png">
+<link rel="mask-icon" href="https://hungson1002.github.io/Blog-Mang/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="vi" href="https://hungson1002.github.io/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="/Blog-Mang/css/custom.min.92463d3042cb523b4e43887053e2563d6060fe3a2f96bd3d0e2879a2337831c2.css">
+
+<script defer>
+
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('table').forEach(tbl => {
+		const rows = Array.from(tbl.rows);
+		if (!rows.length) return;
+		
+		const lastCells = rows.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+		if (!lastCells.length) return;
+		const allEmpty = lastCells.every(c => {
+			
+			const textEmpty = c.textContent.trim() === '';
+			const hasContentEl = c.querySelector('img, code, pre, a, strong, em, span:not(:empty)');
+			return textEmpty && !hasContentEl;
+		});
+		if (allEmpty) {
+			lastCells.forEach(c => c.remove());
+			
+			const rows2 = Array.from(tbl.rows);
+			if (rows2.length) {
+				const lastCells2 = rows2.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+				const allEmpty2 = lastCells2.every(c => c.textContent.trim() === '' && !c.querySelector('img,code,pre,a,strong,em,span:not(:empty)'));
+				if (allEmpty2) lastCells2.forEach(c => c.remove());
+			}
+		}
+	});
+	
+	const hdr = document.querySelector('.header');
+	if (hdr) {
+		let lastY = window.scrollY;
+		const onScroll = () => {
+			const y = window.scrollY;
+			
+			if (y > 10) hdr.classList.add('is-scrolled'); else hdr.classList.remove('is-scrolled');
+			
+			if (y > lastY && y > 64) {
+				
+				hdr.classList.add('is-hidden');
+			} else {
+				
+				hdr.classList.remove('is-hidden');
+			}
+			lastY = y;
+		};
+		
+		const setOffset = () => {
+			const h = hdr.getBoundingClientRect().height; 
+			document.documentElement.style.setProperty('--dynamic-header-space', (h + 12) + 'px');
+		};
+		setOffset();
+		window.addEventListener('resize', setOffset, { passive: true });
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+});
+</script>
+<meta property="og:url" content="https://hungson1002.github.io/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/">
+  <meta property="og:site_name" content="Blog Lập Trình Mạng">
+  <meta property="og:title" content="JDBC cơ bản: Kết nối Java với cơ sở dữ liệu">
+  <meta property="og:description" content="Giới thiệu Trong lập trình ứng dụng, một nhu cầu rất phổ biến là làm việc với cơ sở dữ liệu (CSDL). Dữ liệu người dùng, sản phẩm, đơn hàng… đều cần được lưu trữ và truy xuất hiệu quả.
+Trong Java, để kết nối và làm việc với CSDL, ta dùng JDBC (Java Database Connectivity) – một API chuẩn, có trong JDK từ những phiên bản đầu tiên. JDBC cho phép Java giao tiếp với hầu hết các hệ quản trị CSDL (MySQL, PostgreSQL, Oracle, SQL Server…) thông qua Driver tương ứng.">
+  <meta property="og:locale" content="vi">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:tag" content="Java">
+    <meta property="article:tag" content="Database">
+    <meta property="article:tag" content="JDBC">
+    <meta property="article:tag" content="SQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JDBC cơ bản: Kết nối Java với cơ sở dữ liệu">
+<meta name="twitter:description" content="Giới thiệu
+Trong lập trình ứng dụng, một nhu cầu rất phổ biến là làm việc với cơ sở dữ liệu (CSDL). Dữ liệu người dùng, sản phẩm, đơn hàng… đều cần được lưu trữ và truy xuất hiệu quả.
+Trong Java, để kết nối và làm việc với CSDL, ta dùng JDBC (Java Database Connectivity) – một API chuẩn, có trong JDK từ những phiên bản đầu tiên. JDBC cho phép Java giao tiếp với hầu hết các hệ quản trị CSDL (MySQL, PostgreSQL, Oracle, SQL Server…) thông qua Driver tương ứng.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "JDBC cơ bản: Kết nối Java với cơ sở dữ liệu",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "JDBC cơ bản: Kết nối Java với cơ sở dữ liệu",
+  "name": "JDBC cơ bản: Kết nối Java với cơ sở dữ liệu",
+  "description": "Giới thiệu Trong lập trình ứng dụng, một nhu cầu rất phổ biến là làm việc với cơ sở dữ liệu (CSDL). Dữ liệu người dùng, sản phẩm, đơn hàng… đều cần được lưu trữ và truy xuất hiệu quả.\nTrong Java, để kết nối và làm việc với CSDL, ta dùng JDBC (Java Database Connectivity) – một API chuẩn, có trong JDK từ những phiên bản đầu tiên. JDBC cho phép Java giao tiếp với hầu hết các hệ quản trị CSDL (MySQL, PostgreSQL, Oracle, SQL Server…) thông qua Driver tương ứng.\n",
+  "keywords": [
+    "Java", "Database", "JDBC", "SQL"
+  ],
+  "articleBody": "Giới thiệu Trong lập trình ứng dụng, một nhu cầu rất phổ biến là làm việc với cơ sở dữ liệu (CSDL). Dữ liệu người dùng, sản phẩm, đơn hàng… đều cần được lưu trữ và truy xuất hiệu quả.\nTrong Java, để kết nối và làm việc với CSDL, ta dùng JDBC (Java Database Connectivity) – một API chuẩn, có trong JDK từ những phiên bản đầu tiên. JDBC cho phép Java giao tiếp với hầu hết các hệ quản trị CSDL (MySQL, PostgreSQL, Oracle, SQL Server…) thông qua Driver tương ứng.\nTrong bài viết này, chúng ta sẽ cùng tìm hiểu:\nJDBC là gì và hoạt động như thế nào. Các bước cơ bản khi kết nối Java với CSDL. Ví dụ kết nối với MySQL. So sánh Statement, PreparedStatement, CallableStatement. Ứng dụng thực tế và best practice. JDBC hoạt động như thế nào? JDBC hoạt động theo cơ chế trung gian:\nỨng dụng Java gọi các hàm JDBC (API chuẩn). JDBC gọi Driver (do nhà cung cấp CSDL phát triển). Driver thực hiện truy vấn SQL tới CSDL và trả về kết quả cho Java. Có thể hình dung như sau:\nApp -\u003e JDBC API -\u003e JDBC Driver -\u003e Database Các bước cơ bản để kết nối CSDL bằng JDBC Load Driver (từ JDBC 4.0 trở đi, chỉ cần có thư viện trong classpath, không cần gọi thủ công). Tạo kết nối bằng DriverManager.getConnection(). Tạo Statement để thực thi SQL. Thực thi truy vấn (executeQuery hoặc executeUpdate). Xử lý kết quả từ ResultSet. Đóng kết nối để giải phóng tài nguyên. Ví dụ: Kết nối MySQL bằng JDBC Tạo bảng users trong MySQL\nCREATE DATABASE testdb; USE testdb; CREATE TABLE users ( id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100), email VARCHAR(100) ); Java code: Kết nối và thêm dữ liệu\nSao chép mã import java.sql.Connection; import java.sql.DriverManager; import java.sql.PreparedStatement; import java.sql.ResultSet; public class JDBCDemo { public static void main(String[] args) { String url = \"jdbc:mysql://localhost:3306/testdb\"; String user = \"root\"; String password = \"1234\"; try (Connection conn = DriverManager.getConnection(url, user, password)) { System.out.println(\"Kết nối thành công!\"); // Thêm dữ liệu String insert = \"INSERT INTO users (name, email) VALUES (?, ?)\"; PreparedStatement ps = conn.prepareStatement(insert); ps.setString(1, \"Nguyen Van A\"); ps.setString(2, \"a@example.com\"); ps.executeUpdate(); // Truy vấn dữ liệu ResultSet rs = conn.createStatement().executeQuery(\"SELECT * FROM users\"); while (rs.next()) { System.out.println(rs.getInt(\"id\") + \" - \" + rs.getString(\"name\") + \" - \" + rs.getString(\"email\")); } } catch (Exception e) { e.printStackTrace(); } } } 👉 Chạy chương trình, bạn sẽ thấy dữ liệu được in ra từ CSDL MySQL.\nSo sánh Statement, PreparedStatement, CallableStatement Loại Mục đích Ưu điểm Nhược điểm Statement Thực thi câu SQL tĩnh (không có tham số) Đơn giản, dễ dùng Dễ bị lỗi SQL Injection PreparedStatement Câu SQL có tham số (dùng ?) Bảo mật hơn, tránh SQL Injection, tái sử dụng hiệu quả Phải viết thêm placeholder ? CallableStatement Gọi Stored Procedure trong DB Hỗ trợ thủ tục lưu trữ phức tạp Khó debug hơn Best Practices khi dùng JDBC Luôn đóng Connection, Statement, ResultSet sau khi dùng.\nNên dùng try-with-resources (Java 7+) để tự động đóng tài nguyên.\nDùng PreparedStatement thay vì Statement để tránh SQL Injection.\nTách code JDBC ra thành DAO (Data Access Object) để dễ bảo trì.\nNếu ứng dụng lớn → cân nhắc dùng ORM framework như Hibernate, JPA, MyBatis.\nỨng dụng thực tế Quản lý thông tin người dùng trong website.\nLưu trữ log hệ thống vào database.\nXây dựng backend CRUD API với dữ liệu trong MySQL/PostgreSQL.\nKết luận JDBC là kiến thức cơ bản nhưng cực kỳ quan trọng cho lập trình viên Java. Nó giúp bạn hiểu rõ cách Java làm việc với cơ sở dữ liệu, từ đó có thể tự tin hơn khi học các framework cao hơn như Hibernate hay Spring Data JPA.\n🚀 Nếu bạn nắm vững JDBC, bạn sẽ dễ dàng xây dựng các ứng dụng quản lý dữ liệu và backend API bằng Java.\n",
+  "wordCount" : "663",
+  "inLanguage": "vi",
+  "datePublished": "2025-09-14T00:00:00Z",
+  "dateModified": "2025-09-14T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://hungson1002.github.io/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Blog Lập Trình Mạng",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://hungson1002.github.io/Blog-Mang/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://hungson1002.github.io/Blog-Mang/" accesskey="h" title="Blog Lập Trình Mạng (Alt + H)">Blog Lập Trình Mạng</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/blog/" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/about/" title="Profile">
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header><main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://hungson1002.github.io/Blog-Mang/">Trang chủ</a>&nbsp;»&nbsp;<a href="https://hungson1002.github.io/Blog-Mang/blog/">Blog</a></div>
+    <h1 class="post-title entry-hint-parent">
+      JDBC cơ bản: Kết nối Java với cơ sở dữ liệu
+    </h1>
+    <div class="post-meta"><span title='2025-09-14 00:00:00 +0000 UTC'>tháng 9 14, 2025</span>&nbsp;·&nbsp;4 phút
+
+</div>
+  </header> 
+  <div class="post-content"><h2 id="giới-thiệu">Giới thiệu<a hidden class="anchor" aria-hidden="true" href="#giới-thiệu">#</a></h2>
+<p>Trong lập trình ứng dụng, một nhu cầu rất phổ biến là <strong>làm việc với cơ sở dữ liệu (CSDL)</strong>. Dữ liệu người dùng, sản phẩm, đơn hàng… đều cần được lưu trữ và truy xuất hiệu quả.</p>
+<p>Trong Java, để kết nối và làm việc với CSDL, ta dùng <strong>JDBC (Java Database Connectivity)</strong> – một API chuẩn, có trong JDK từ những phiên bản đầu tiên. JDBC cho phép Java giao tiếp với hầu hết các hệ quản trị CSDL (MySQL, PostgreSQL, Oracle, SQL Server…) thông qua <strong>Driver</strong> tương ứng.</p>
+<p>Trong bài viết này, chúng ta sẽ cùng tìm hiểu:</p>
+<ol>
+<li>JDBC là gì và hoạt động như thế nào.</li>
+<li>Các bước cơ bản khi kết nối Java với CSDL.</li>
+<li>Ví dụ kết nối với MySQL.</li>
+<li>So sánh <code>Statement</code>, <code>PreparedStatement</code>, <code>CallableStatement</code>.</li>
+<li>Ứng dụng thực tế và best practice.</li>
+</ol>
+<hr>
+<h2 id="jdbc-hoạt-động-như-thế-nào">JDBC hoạt động như thế nào?<a hidden class="anchor" aria-hidden="true" href="#jdbc-hoạt-động-như-thế-nào">#</a></h2>
+<p>JDBC hoạt động theo cơ chế trung gian:</p>
+<ul>
+<li>Ứng dụng Java gọi các hàm JDBC (API chuẩn).</li>
+<li>JDBC gọi <strong>Driver</strong> (do nhà cung cấp CSDL phát triển).</li>
+<li>Driver thực hiện truy vấn SQL tới CSDL và trả về kết quả cho Java.</li>
+</ul>
+<p>Có thể hình dung như sau:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Java" data-lang="Java"><span style="display:flex;"><span>App <span style="color:#f92672">-&gt;</span> JDBC API <span style="color:#f92672">-&gt;</span> JDBC Driver <span style="color:#f92672">-&gt;</span> Database
+</span></span></code></pre></div><hr>
+<h2 id="các-bước-cơ-bản-để-kết-nối-csdl-bằng-jdbc">Các bước cơ bản để kết nối CSDL bằng JDBC<a hidden class="anchor" aria-hidden="true" href="#các-bước-cơ-bản-để-kết-nối-csdl-bằng-jdbc">#</a></h2>
+<ol>
+<li><strong>Load Driver</strong> (từ JDBC 4.0 trở đi, chỉ cần có thư viện trong classpath, không cần gọi thủ công).</li>
+<li><strong>Tạo kết nối</strong> bằng <code>DriverManager.getConnection()</code>.</li>
+<li><strong>Tạo Statement</strong> để thực thi SQL.</li>
+<li><strong>Thực thi truy vấn</strong> (<code>executeQuery</code> hoặc <code>executeUpdate</code>).</li>
+<li><strong>Xử lý kết quả</strong> từ <code>ResultSet</code>.</li>
+<li><strong>Đóng kết nối</strong> để giải phóng tài nguyên.</li>
+</ol>
+<hr>
+<h2 id="ví-dụ-kết-nối-mysql-bằng-jdbc">Ví dụ: Kết nối MySQL bằng JDBC<a hidden class="anchor" aria-hidden="true" href="#ví-dụ-kết-nối-mysql-bằng-jdbc">#</a></h2>
+<p><strong>Tạo bảng users trong MySQL</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">DATABASE</span> testdb;
+</span></span><span style="display:flex;"><span>USE testdb;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> users (
+</span></span><span style="display:flex;"><span>    id INT AUTO_INCREMENT <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span>,
+</span></span><span style="display:flex;"><span>    name VARCHAR(<span style="color:#ae81ff">100</span>),
+</span></span><span style="display:flex;"><span>    email VARCHAR(<span style="color:#ae81ff">100</span>)
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><p><strong>Java code: Kết nối và thêm dữ liệu</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Sao chép mã
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.sql.Connection;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.sql.DriverManager;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.sql.PreparedStatement;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.sql.ResultSet;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JDBCDemo</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) {
+</span></span><span style="display:flex;"><span>        String url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;jdbc:mysql://localhost:3306/testdb&#34;</span>;
+</span></span><span style="display:flex;"><span>        String user <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;root&#34;</span>;
+</span></span><span style="display:flex;"><span>        String password <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;1234&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> (Connection conn <span style="color:#f92672">=</span> DriverManager.<span style="color:#a6e22e">getConnection</span>(url, user, password)) {
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;Kết nối thành công!&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Thêm dữ liệu</span>
+</span></span><span style="display:flex;"><span>            String insert <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;INSERT INTO users (name, email) VALUES (?, ?)&#34;</span>;
+</span></span><span style="display:flex;"><span>            PreparedStatement ps <span style="color:#f92672">=</span> conn.<span style="color:#a6e22e">prepareStatement</span>(insert);
+</span></span><span style="display:flex;"><span>            ps.<span style="color:#a6e22e">setString</span>(1, <span style="color:#e6db74">&#34;Nguyen Van A&#34;</span>);
+</span></span><span style="display:flex;"><span>            ps.<span style="color:#a6e22e">setString</span>(2, <span style="color:#e6db74">&#34;a@example.com&#34;</span>);
+</span></span><span style="display:flex;"><span>            ps.<span style="color:#a6e22e">executeUpdate</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Truy vấn dữ liệu</span>
+</span></span><span style="display:flex;"><span>            ResultSet rs <span style="color:#f92672">=</span> conn.<span style="color:#a6e22e">createStatement</span>().<span style="color:#a6e22e">executeQuery</span>(<span style="color:#e6db74">&#34;SELECT * FROM users&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">while</span> (rs.<span style="color:#a6e22e">next</span>()) {
+</span></span><span style="display:flex;"><span>                System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(rs.<span style="color:#a6e22e">getInt</span>(<span style="color:#e6db74">&#34;id&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; - &#34;</span> 
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">+</span> rs.<span style="color:#a6e22e">getString</span>(<span style="color:#e6db74">&#34;name&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; - &#34;</span> <span style="color:#f92672">+</span> rs.<span style="color:#a6e22e">getString</span>(<span style="color:#e6db74">&#34;email&#34;</span>));
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">catch</span> (Exception e) {
+</span></span><span style="display:flex;"><span>            e.<span style="color:#a6e22e">printStackTrace</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>👉 Chạy chương trình, bạn sẽ thấy dữ liệu được in ra từ CSDL MySQL.</p>
+<h3 id="so-sánh-statement-preparedstatement-callablestatement">So sánh Statement, PreparedStatement, CallableStatement<a hidden class="anchor" aria-hidden="true" href="#so-sánh-statement-preparedstatement-callablestatement">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Loại</th>
+          <th>Mục đích</th>
+          <th>Ưu điểm</th>
+          <th>Nhược điểm</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Statement</td>
+          <td>Thực thi câu SQL tĩnh (không có tham số)</td>
+          <td>Đơn giản, dễ dùng</td>
+          <td>Dễ bị lỗi SQL Injection</td>
+      </tr>
+      <tr>
+          <td>PreparedStatement</td>
+          <td>Câu SQL có tham số (dùng ?)</td>
+          <td>Bảo mật hơn, tránh SQL Injection, tái sử dụng hiệu quả</td>
+          <td>Phải viết thêm placeholder ?</td>
+      </tr>
+      <tr>
+          <td>CallableStatement</td>
+          <td>Gọi Stored Procedure trong DB</td>
+          <td>Hỗ trợ thủ tục lưu trữ phức tạp</td>
+          <td>Khó debug hơn</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="best-practices-khi-dùng-jdbc">Best Practices khi dùng JDBC<a hidden class="anchor" aria-hidden="true" href="#best-practices-khi-dùng-jdbc">#</a></h3>
+<p>Luôn đóng Connection, Statement, ResultSet sau khi dùng.</p>
+<p>Nên dùng try-with-resources (Java 7+) để tự động đóng tài nguyên.</p>
+<p>Dùng PreparedStatement thay vì Statement để tránh SQL Injection.</p>
+<p>Tách code JDBC ra thành DAO (Data Access Object) để dễ bảo trì.</p>
+<p>Nếu ứng dụng lớn → cân nhắc dùng ORM framework như Hibernate, JPA, MyBatis.</p>
+<h3 id="ứng-dụng-thực-tế">Ứng dụng thực tế<a hidden class="anchor" aria-hidden="true" href="#ứng-dụng-thực-tế">#</a></h3>
+<ul>
+<li>
+<p>Quản lý thông tin người dùng trong website.</p>
+</li>
+<li>
+<p>Lưu trữ log hệ thống vào database.</p>
+</li>
+<li>
+<p>Xây dựng backend CRUD API với dữ liệu trong MySQL/PostgreSQL.</p>
+</li>
+</ul>
+<h3 id="kết-luận">Kết luận<a hidden class="anchor" aria-hidden="true" href="#kết-luận">#</a></h3>
+<p>JDBC là kiến thức cơ bản nhưng cực kỳ quan trọng cho lập trình viên Java.
+Nó giúp bạn hiểu rõ cách Java làm việc với cơ sở dữ liệu, từ đó có thể tự tin hơn khi học các framework cao hơn như Hibernate hay Spring Data JPA.</p>
+<p>🚀 Nếu bạn nắm vững JDBC, bạn sẽ dễ dàng xây dựng các ứng dụng quản lý dữ liệu và backend API bằng Java.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/java/">Java</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/database/">Database</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/jdbc/">JDBC</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/sql/">SQL</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/">
+    <span class="title">« Trang trước</span>
+    <br>
+    <span>Java NIO: Xử lý kết nối mạng Non-Blocking</span>
+  </a>
+  <a class="next" href="https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/">
+    <span class="title">Trang tiếp theo »</span>
+    <br>
+    <span>Kiểm thử ứng dụng mạng bằng JUnit &amp; Testcontainers</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://hungson1002.github.io/Blog-Mang/">Blog Lập Trình Mạng</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

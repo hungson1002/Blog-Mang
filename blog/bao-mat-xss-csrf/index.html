@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="vi" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Bảo mật Web: Ngăn chặn XSS &amp; CSRF với JavaScript | Blog Lập Trình Mạng</title>
+<meta name="keywords" content="JavaScript, Security, XSS, CSRF, Web">
+<meta name="description" content="Giới thiệu
+Trong thời đại web ngày nay, bảo mật ứng dụng là yếu tố sống còn. Hai trong số các lỗ hổng phổ biến nhất mà lập trình viên hay gặp phải là XSS (Cross-Site Scripting) và CSRF (Cross-Site Request Forgery).
+Nếu không được ngăn chặn, kẻ tấn công có thể:
+
+Chèn mã độc vào trình duyệt người dùng (XSS).
+Lợi dụng người dùng đã đăng nhập để thực hiện hành động trái phép (CSRF).
+
+Trong bài viết này, chúng ta sẽ:">
+<meta name="author" content="">
+<link rel="canonical" href="https://hungson1002.github.io/Blog-Mang/blog/bao-mat-xss-csrf/">
+<link crossorigin="anonymous" href="/Blog-Mang/assets/css/stylesheet.2211ca3164be7830024f6aad2b3a2e520843a64f8f048445c3401c1249aa051d.css" integrity="sha256-IhHKMWS&#43;eDACT2qtKzouUghDpk&#43;PBIRFw0AcEkmqBR0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://hungson1002.github.io/Blog-Mang/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://hungson1002.github.io/Blog-Mang/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://hungson1002.github.io/Blog-Mang/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://hungson1002.github.io/Blog-Mang/apple-touch-icon.png">
+<link rel="mask-icon" href="https://hungson1002.github.io/Blog-Mang/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="vi" href="https://hungson1002.github.io/Blog-Mang/blog/bao-mat-xss-csrf/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="/Blog-Mang/css/custom.min.92463d3042cb523b4e43887053e2563d6060fe3a2f96bd3d0e2879a2337831c2.css">
+
+<script defer>
+
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('table').forEach(tbl => {
+		const rows = Array.from(tbl.rows);
+		if (!rows.length) return;
+		
+		const lastCells = rows.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+		if (!lastCells.length) return;
+		const allEmpty = lastCells.every(c => {
+			
+			const textEmpty = c.textContent.trim() === '';
+			const hasContentEl = c.querySelector('img, code, pre, a, strong, em, span:not(:empty)');
+			return textEmpty && !hasContentEl;
+		});
+		if (allEmpty) {
+			lastCells.forEach(c => c.remove());
+			
+			const rows2 = Array.from(tbl.rows);
+			if (rows2.length) {
+				const lastCells2 = rows2.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+				const allEmpty2 = lastCells2.every(c => c.textContent.trim() === '' && !c.querySelector('img,code,pre,a,strong,em,span:not(:empty)'));
+				if (allEmpty2) lastCells2.forEach(c => c.remove());
+			}
+		}
+	});
+	
+	const hdr = document.querySelector('.header');
+	if (hdr) {
+		let lastY = window.scrollY;
+		const onScroll = () => {
+			const y = window.scrollY;
+			
+			if (y > 10) hdr.classList.add('is-scrolled'); else hdr.classList.remove('is-scrolled');
+			
+			if (y > lastY && y > 64) {
+				
+				hdr.classList.add('is-hidden');
+			} else {
+				
+				hdr.classList.remove('is-hidden');
+			}
+			lastY = y;
+		};
+		
+		const setOffset = () => {
+			const h = hdr.getBoundingClientRect().height; 
+			document.documentElement.style.setProperty('--dynamic-header-space', (h + 12) + 'px');
+		};
+		setOffset();
+		window.addEventListener('resize', setOffset, { passive: true });
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+});
+</script>
+<meta property="og:url" content="https://hungson1002.github.io/Blog-Mang/blog/bao-mat-xss-csrf/">
+  <meta property="og:site_name" content="Blog Lập Trình Mạng">
+  <meta property="og:title" content="Bảo mật Web: Ngăn chặn XSS & CSRF với JavaScript">
+  <meta property="og:description" content="Giới thiệu Trong thời đại web ngày nay, bảo mật ứng dụng là yếu tố sống còn. Hai trong số các lỗ hổng phổ biến nhất mà lập trình viên hay gặp phải là XSS (Cross-Site Scripting) và CSRF (Cross-Site Request Forgery).
+Nếu không được ngăn chặn, kẻ tấn công có thể:
+Chèn mã độc vào trình duyệt người dùng (XSS). Lợi dụng người dùng đã đăng nhập để thực hiện hành động trái phép (CSRF). Trong bài viết này, chúng ta sẽ:">
+  <meta property="og:locale" content="vi">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:tag" content="JavaScript">
+    <meta property="article:tag" content="Security">
+    <meta property="article:tag" content="XSS">
+    <meta property="article:tag" content="CSRF">
+    <meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bảo mật Web: Ngăn chặn XSS &amp; CSRF với JavaScript">
+<meta name="twitter:description" content="Giới thiệu
+Trong thời đại web ngày nay, bảo mật ứng dụng là yếu tố sống còn. Hai trong số các lỗ hổng phổ biến nhất mà lập trình viên hay gặp phải là XSS (Cross-Site Scripting) và CSRF (Cross-Site Request Forgery).
+Nếu không được ngăn chặn, kẻ tấn công có thể:
+
+Chèn mã độc vào trình duyệt người dùng (XSS).
+Lợi dụng người dùng đã đăng nhập để thực hiện hành động trái phép (CSRF).
+
+Trong bài viết này, chúng ta sẽ:">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Bảo mật Web: Ngăn chặn XSS \u0026 CSRF với JavaScript",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/bao-mat-xss-csrf/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Bảo mật Web: Ngăn chặn XSS \u0026 CSRF với JavaScript",
+  "name": "Bảo mật Web: Ngăn chặn XSS \u0026 CSRF với JavaScript",
+  "description": "Giới thiệu Trong thời đại web ngày nay, bảo mật ứng dụng là yếu tố sống còn. Hai trong số các lỗ hổng phổ biến nhất mà lập trình viên hay gặp phải là XSS (Cross-Site Scripting) và CSRF (Cross-Site Request Forgery).\nNếu không được ngăn chặn, kẻ tấn công có thể:\nChèn mã độc vào trình duyệt người dùng (XSS). Lợi dụng người dùng đã đăng nhập để thực hiện hành động trái phép (CSRF). Trong bài viết này, chúng ta sẽ:\n",
+  "keywords": [
+    "JavaScript", "Security", "XSS", "CSRF", "Web"
+  ],
+  "articleBody": "Giới thiệu Trong thời đại web ngày nay, bảo mật ứng dụng là yếu tố sống còn. Hai trong số các lỗ hổng phổ biến nhất mà lập trình viên hay gặp phải là XSS (Cross-Site Scripting) và CSRF (Cross-Site Request Forgery).\nNếu không được ngăn chặn, kẻ tấn công có thể:\nChèn mã độc vào trình duyệt người dùng (XSS). Lợi dụng người dùng đã đăng nhập để thực hiện hành động trái phép (CSRF). Trong bài viết này, chúng ta sẽ:\nHiểu XSS là gì và cách khai thác. Hiểu CSRF là gì và cách khai thác. Viết ví dụ JavaScript minh họa. So sánh XSS và CSRF. Cách phòng chống trong ứng dụng web. XSS (Cross-Site Scripting) là gì? XSS xảy ra khi ứng dụng web cho phép người dùng nhập dữ liệu mà không kiểm soát hoặc lọc đầu vào, sau đó hiển thị trực tiếp dữ liệu đó lên trang.\nVí dụ lỗ hổng XSS:\n\u003cinput type=\"text\" id=\"comment\" /\u003e \u003cbutton onclick=\"postComment()\"\u003eGửi\u003c/button\u003e \u003cdiv id=\"comments\"\u003e\u003c/div\u003e \u003cscript\u003e function postComment() { const input = document.getElementById(\"comment\").value; // ❌ Lỗi: chèn trực tiếp HTML mà không escape document.getElementById(\"comments\").innerHTML += input; } \u003c/script\u003e Nếu người dùng nhập vào:\n\u003cscript\u003ealert(\"Bị hack rồi!\");\u003c/script\u003e 👉 Script này sẽ được thực thi trong trình duyệt, gây nguy hiểm.\nCSRF (Cross-Site Request Forgery) là gì? CSRF xảy ra khi kẻ tấn công lợi dụng phiên đăng nhập (session/cookie) của người dùng để gửi yêu cầu giả mạo.\nVí dụ: Một website có endpoint xóa tài khoản:\nPOST https://example.com/deleteAccount Người dùng đã đăng nhập, cookie session lưu trong trình duyệt. Nếu kẻ xấu gửi link:\n\u003cimg src=\"https://example.com/deleteAccount\" /\u003e 👉 Khi người dùng mở link, trình duyệt tự động gửi request kèm cookie session → tài khoản có thể bị xóa mà người dùng không biết.\nSo sánh XSS và CSRF Tiêu chí XSS (Cross-Site Scripting) CSRF (Cross-Site Request Forgery) Cách khai thác Chèn mã JavaScript vào trang web Lợi dụng cookie/session của người dùng Hệ quả Đánh cắp dữ liệu, chiếm quyền điều khiển UI Thực hiện hành động giả mạo thay người dùng Phụ thuộc người dùng Người dùng xem nội dung chứa mã độc Người dùng đã đăng nhập vào ứng dụng Ngăn chặn Escape dữ liệu, Content Security Policy CSRF token, SameSite cookie Cách phòng chống XSS Escape đầu vào/đầu ra: không chèn trực tiếp dữ liệu người dùng vào HTML.\nVí dụ trong JavaScript:\nfunction escapeHTML(str) { return str.replace(/",
+  "wordCount" : "657",
+  "inLanguage": "vi",
+  "datePublished": "2025-09-14T00:00:00Z",
+  "dateModified": "2025-09-14T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://hungson1002.github.io/Blog-Mang/blog/bao-mat-xss-csrf/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Blog Lập Trình Mạng",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://hungson1002.github.io/Blog-Mang/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://hungson1002.github.io/Blog-Mang/" accesskey="h" title="Blog Lập Trình Mạng (Alt + H)">Blog Lập Trình Mạng</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/blog/" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/about/" title="Profile">
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header><main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://hungson1002.github.io/Blog-Mang/">Trang chủ</a>&nbsp;»&nbsp;<a href="https://hungson1002.github.io/Blog-Mang/blog/">Blog</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Bảo mật Web: Ngăn chặn XSS &amp; CSRF với JavaScript
+    </h1>
+    <div class="post-meta"><span title='2025-09-14 00:00:00 +0000 UTC'>tháng 9 14, 2025</span>&nbsp;·&nbsp;4 phút
+
+</div>
+  </header> 
+  <div class="post-content"><h2 id="giới-thiệu">Giới thiệu<a hidden class="anchor" aria-hidden="true" href="#giới-thiệu">#</a></h2>
+<p>Trong thời đại web ngày nay, <strong>bảo mật ứng dụng</strong> là yếu tố sống còn. Hai trong số các lỗ hổng phổ biến nhất mà lập trình viên hay gặp phải là <strong>XSS (Cross-Site Scripting)</strong> và <strong>CSRF (Cross-Site Request Forgery)</strong>.</p>
+<p>Nếu không được ngăn chặn, kẻ tấn công có thể:</p>
+<ul>
+<li>Chèn mã độc vào trình duyệt người dùng (XSS).</li>
+<li>Lợi dụng người dùng đã đăng nhập để thực hiện hành động trái phép (CSRF).</li>
+</ul>
+<p>Trong bài viết này, chúng ta sẽ:</p>
+<ol>
+<li>Hiểu XSS là gì và cách khai thác.</li>
+<li>Hiểu CSRF là gì và cách khai thác.</li>
+<li>Viết ví dụ JavaScript minh họa.</li>
+<li>So sánh XSS và CSRF.</li>
+<li>Cách phòng chống trong ứng dụng web.</li>
+</ol>
+<hr>
+<h2 id="xss-cross-site-scripting-là-gì">XSS (Cross-Site Scripting) là gì?<a hidden class="anchor" aria-hidden="true" href="#xss-cross-site-scripting-là-gì">#</a></h2>
+<p><strong>XSS</strong> xảy ra khi ứng dụng web cho phép người dùng nhập dữ liệu mà <strong>không kiểm soát hoặc lọc đầu vào</strong>, sau đó hiển thị trực tiếp dữ liệu đó lên trang.</p>
+<p>Ví dụ lỗ hổng XSS:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text&#34;</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;comment&#34;</span> /&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">button</span> <span style="color:#a6e22e">onclick</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;postComment()&#34;</span>&gt;Gửi&lt;/<span style="color:#f92672">button</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">div</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;comments&#34;</span>&gt;&lt;/<span style="color:#f92672">div</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">postComment</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">input</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#34;comment&#34;</span>).<span style="color:#a6e22e">value</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// ❌ Lỗi: chèn trực tiếp HTML mà không escape
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#34;comments&#34;</span>).<span style="color:#a6e22e">innerHTML</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">input</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">script</span>&gt;
+</span></span></code></pre></div><p>Nếu người dùng nhập vào:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">script</span>&gt;<span style="color:#a6e22e">alert</span>(<span style="color:#e6db74">&#34;Bị hack rồi!&#34;</span>);&lt;/<span style="color:#f92672">script</span>&gt;
+</span></span></code></pre></div><p>👉 Script này sẽ được thực thi trong trình duyệt, gây nguy hiểm.</p>
+<h3 id="csrf-cross-site-request-forgery-là-gì">CSRF (Cross-Site Request Forgery) là gì?<a hidden class="anchor" aria-hidden="true" href="#csrf-cross-site-request-forgery-là-gì">#</a></h3>
+<p>CSRF xảy ra khi kẻ tấn công lợi dụng phiên đăng nhập (session/cookie) của người dùng để gửi yêu cầu giả mạo.</p>
+<p>Ví dụ: Một website có endpoint xóa tài khoản:</p>
+<pre tabindex="0"><code>POST https://example.com/deleteAccount
+</code></pre><p>Người dùng đã đăng nhập, cookie session lưu trong trình duyệt. Nếu kẻ xấu gửi link:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">img</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://example.com/deleteAccount&#34;</span> /&gt;
+</span></span></code></pre></div><p>👉 Khi người dùng mở link, trình duyệt tự động gửi request kèm <code>cookie session</code> → tài khoản có thể bị xóa mà người dùng không biết.</p>
+<h3 id="so-sánh-xss-và-csrf">So sánh XSS và CSRF<a hidden class="anchor" aria-hidden="true" href="#so-sánh-xss-và-csrf">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Tiêu chí</th>
+          <th>XSS (Cross-Site Scripting)</th>
+          <th>CSRF (Cross-Site Request Forgery)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Cách khai thác</td>
+          <td>Chèn mã JavaScript vào trang web</td>
+          <td>Lợi dụng cookie/session của người dùng</td>
+      </tr>
+      <tr>
+          <td>Hệ quả</td>
+          <td>Đánh cắp dữ liệu, chiếm quyền điều khiển UI</td>
+          <td>Thực hiện hành động giả mạo thay người dùng</td>
+      </tr>
+      <tr>
+          <td>Phụ thuộc người dùng</td>
+          <td>Người dùng xem nội dung chứa mã độc</td>
+          <td>Người dùng đã đăng nhập vào ứng dụng</td>
+      </tr>
+      <tr>
+          <td>Ngăn chặn</td>
+          <td>Escape dữ liệu, Content Security Policy</td>
+          <td>CSRF token, SameSite cookie</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Cách phòng chống XSS Escape đầu vào/đầu ra:</strong> không chèn trực tiếp dữ liệu người dùng vào HTML.<br>
+Ví dụ trong JavaScript:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">escapeHTML</span>(<span style="color:#a6e22e">str</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">str</span>.<span style="color:#a6e22e">replace</span>(<span style="color:#e6db74">/&lt;/g</span>, <span style="color:#e6db74">&#34;&amp;lt;&#34;</span>).<span style="color:#a6e22e">replace</span>(<span style="color:#e6db74">/&gt;/g</span>, <span style="color:#e6db74">&#34;&amp;gt;&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#34;comments&#34;</span>).<span style="color:#a6e22e">innerText</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">escapeHTML</span>(<span style="color:#a6e22e">input</span>);
+</span></span></code></pre></div><p><strong>Content Security Policy (CSP)</strong>: cấu hình HTTP header để chỉ cho phép script từ nguồn đáng tin cậy.</p>
+<p>Không dùng <code>innerHTML</code> bừa bãi → ưu tiên textContent hoặc innerText.</p>
+<p><strong>Cách phòng chống CSRF Token:</strong> Mỗi form/request phải kèm một token ngẫu nhiên, server kiểm tra trước khi xử lý.</p>
+<p>Ví dụ gửi form kèm token:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">form</span> <span style="color:#a6e22e">action</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;/transfer&#34;</span> <span style="color:#a6e22e">method</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;POST&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;hidden&#34;</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;csrfToken&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;abc123xyz&#34;</span> /&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">button</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;submit&#34;</span>&gt;Chuyển tiền&lt;/<span style="color:#f92672">button</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">form</span>&gt;
+</span></span></code></pre></div><p><code>SameSite Cookie:</code> cấu hình cookie chỉ gửi trong cùng domain.</p>
+<pre tabindex="0"><code>Set-Cookie: sessionid=abc123; HttpOnly; Secure; SameSite=Strict
+</code></pre><p>Xác thực lại hành động quan trọng: yêu cầu nhập lại mật khẩu/OTP.</p>
+<h3 id="ứng-dụng-thực-tế">Ứng dụng thực tế<a hidden class="anchor" aria-hidden="true" href="#ứng-dụng-thực-tế">#</a></h3>
+<ul>
+<li>
+<p>Các mạng xã hội, sàn thương mại điện tử thường là mục tiêu hàng đầu.</p>
+</li>
+<li>
+<p>Google, Facebook, Twitter đều có hệ thống bảo vệ XSS &amp; CSRF cực chặt.</p>
+</li>
+<li>
+<p>Nếu làm ứng dụng web, bạn cần tích hợp bảo mật từ đầu, không để đến khi phát triển xong mới thêm.</p>
+</li>
+</ul>
+<h3 id="kết-luận">Kết luận<a hidden class="anchor" aria-hidden="true" href="#kết-luận">#</a></h3>
+<p>XSS và CSRF là hai lỗ hổng nguy hiểm, phổ biến và dễ khai thác.</p>
+<p>XSS: xảy ra do không lọc dữ liệu người dùng.</p>
+<p>CSRF: xảy ra do lợi dụng cookie/session của người dùng.</p>
+<p><strong>👉 Muốn xây dựng ứng dụng web an toàn, hãy luôn:</strong></p>
+<ul>
+<li>
+<p>Escape dữ liệu đầu vào/đầu ra.</p>
+</li>
+<li>
+<p>Sử dụng CSP, SameSite cookie.</p>
+</li>
+<li>
+<p>Thêm CSRF token vào các form.</p>
+</li>
+</ul>
+<p>🚀 Khi bạn nắm vững và phòng chống được XSS &amp; CSRF, ứng dụng sẽ bảo mật hơn rất nhiều, giảm thiểu rủi ro cho cả người dùng lẫn hệ thống.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/javascript/">JavaScript</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/security/">Security</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/xss/">XSS</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/csrf/">CSRF</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/web/">Web</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/">
+    <span class="title">Trang tiếp theo »</span>
+    <br>
+    <span>Hiểu rõ Fetch API &amp; vấn đề CORS trong JavaScript</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://hungson1002.github.io/Blog-Mang/">Blog Lập Trình Mạng</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

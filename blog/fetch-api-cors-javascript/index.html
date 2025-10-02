@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Hiểu rõ Fetch API &amp; vấn đề CORS trong JavaScript | Blog Lập Trình Mạng</title>
+<meta name="keywords" content="JavaScript, Fetch API, CORS, Web">
+<meta name="description" content="Giới thiệu
+Trong lập trình web hiện đại, JavaScript đóng vai trò trung tâm trong việc giao tiếp giữa frontend và backend.
+Một trong những công cụ mạnh mẽ nhất để gọi API từ trình duyệt là Fetch API. Nó thay thế XMLHttpRequest cũ kỹ, mang đến cú pháp gọn gàng hơn dựa trên Promise và hỗ trợ tốt với async/await.
+Tuy nhiên, khi gọi API từ domain khác, bạn thường gặp lỗi khó chịu:">
+<meta name="author" content="">
+<link rel="canonical" href="https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/">
+<link crossorigin="anonymous" href="/Blog-Mang/assets/css/stylesheet.2211ca3164be7830024f6aad2b3a2e520843a64f8f048445c3401c1249aa051d.css" integrity="sha256-IhHKMWS&#43;eDACT2qtKzouUghDpk&#43;PBIRFw0AcEkmqBR0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://hungson1002.github.io/Blog-Mang/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://hungson1002.github.io/Blog-Mang/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://hungson1002.github.io/Blog-Mang/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://hungson1002.github.io/Blog-Mang/apple-touch-icon.png">
+<link rel="mask-icon" href="https://hungson1002.github.io/Blog-Mang/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="vi" href="https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="/Blog-Mang/css/custom.min.92463d3042cb523b4e43887053e2563d6060fe3a2f96bd3d0e2879a2337831c2.css">
+
+<script defer>
+
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('table').forEach(tbl => {
+		const rows = Array.from(tbl.rows);
+		if (!rows.length) return;
+		
+		const lastCells = rows.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+		if (!lastCells.length) return;
+		const allEmpty = lastCells.every(c => {
+			
+			const textEmpty = c.textContent.trim() === '';
+			const hasContentEl = c.querySelector('img, code, pre, a, strong, em, span:not(:empty)');
+			return textEmpty && !hasContentEl;
+		});
+		if (allEmpty) {
+			lastCells.forEach(c => c.remove());
+			
+			const rows2 = Array.from(tbl.rows);
+			if (rows2.length) {
+				const lastCells2 = rows2.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+				const allEmpty2 = lastCells2.every(c => c.textContent.trim() === '' && !c.querySelector('img,code,pre,a,strong,em,span:not(:empty)'));
+				if (allEmpty2) lastCells2.forEach(c => c.remove());
+			}
+		}
+	});
+	
+	const hdr = document.querySelector('.header');
+	if (hdr) {
+		let lastY = window.scrollY;
+		const onScroll = () => {
+			const y = window.scrollY;
+			
+			if (y > 10) hdr.classList.add('is-scrolled'); else hdr.classList.remove('is-scrolled');
+			
+			if (y > lastY && y > 64) {
+				
+				hdr.classList.add('is-hidden');
+			} else {
+				
+				hdr.classList.remove('is-hidden');
+			}
+			lastY = y;
+		};
+		
+		const setOffset = () => {
+			const h = hdr.getBoundingClientRect().height; 
+			document.documentElement.style.setProperty('--dynamic-header-space', (h + 12) + 'px');
+		};
+		setOffset();
+		window.addEventListener('resize', setOffset, { passive: true });
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+});
+</script>
+<meta property="og:url" content="https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/">
+  <meta property="og:site_name" content="Blog Lập Trình Mạng">
+  <meta property="og:title" content="Hiểu rõ Fetch API & vấn đề CORS trong JavaScript">
+  <meta property="og:description" content="Giới thiệu Trong lập trình web hiện đại, JavaScript đóng vai trò trung tâm trong việc giao tiếp giữa frontend và backend.
+Một trong những công cụ mạnh mẽ nhất để gọi API từ trình duyệt là Fetch API. Nó thay thế XMLHttpRequest cũ kỹ, mang đến cú pháp gọn gàng hơn dựa trên Promise và hỗ trợ tốt với async/await.
+Tuy nhiên, khi gọi API từ domain khác, bạn thường gặp lỗi khó chịu:">
+  <meta property="og:locale" content="vi">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:tag" content="JavaScript">
+    <meta property="article:tag" content="Fetch API">
+    <meta property="article:tag" content="CORS">
+    <meta property="article:tag" content="Web">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hiểu rõ Fetch API &amp; vấn đề CORS trong JavaScript">
+<meta name="twitter:description" content="Giới thiệu
+Trong lập trình web hiện đại, JavaScript đóng vai trò trung tâm trong việc giao tiếp giữa frontend và backend.
+Một trong những công cụ mạnh mẽ nhất để gọi API từ trình duyệt là Fetch API. Nó thay thế XMLHttpRequest cũ kỹ, mang đến cú pháp gọn gàng hơn dựa trên Promise và hỗ trợ tốt với async/await.
+Tuy nhiên, khi gọi API từ domain khác, bạn thường gặp lỗi khó chịu:">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Hiểu rõ Fetch API \u0026 vấn đề CORS trong JavaScript",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Hiểu rõ Fetch API \u0026 vấn đề CORS trong JavaScript",
+  "name": "Hiểu rõ Fetch API \u0026 vấn đề CORS trong JavaScript",
+  "description": "Giới thiệu Trong lập trình web hiện đại, JavaScript đóng vai trò trung tâm trong việc giao tiếp giữa frontend và backend.\nMột trong những công cụ mạnh mẽ nhất để gọi API từ trình duyệt là Fetch API. Nó thay thế XMLHttpRequest cũ kỹ, mang đến cú pháp gọn gàng hơn dựa trên Promise và hỗ trợ tốt với async/await.\nTuy nhiên, khi gọi API từ domain khác, bạn thường gặp lỗi khó chịu:\n",
+  "keywords": [
+    "JavaScript", "Fetch API", "CORS", "Web"
+  ],
+  "articleBody": "Giới thiệu Trong lập trình web hiện đại, JavaScript đóng vai trò trung tâm trong việc giao tiếp giữa frontend và backend.\nMột trong những công cụ mạnh mẽ nhất để gọi API từ trình duyệt là Fetch API. Nó thay thế XMLHttpRequest cũ kỹ, mang đến cú pháp gọn gàng hơn dựa trên Promise và hỗ trợ tốt với async/await.\nTuy nhiên, khi gọi API từ domain khác, bạn thường gặp lỗi khó chịu:\nfrom origin 'http://localhost:3000' has been blocked by CORS policy 👉 Đây chính là CORS (Cross-Origin Resource Sharing) – cơ chế bảo mật của trình duyệt.\nTrong bài viết này, ta sẽ tìm hiểu:\nFetch API là gì và cú pháp cơ bản. Các ví dụ sử dụng Fetch API. CORS là gì và tại sao gây lỗi. Cách backend và frontend xử lý CORS. So sánh Fetch API với XMLHttpRequest. Kết luận và best practices. Fetch API cơ bản Ví dụ gọi API GET:\nfetch(\"https://jsonplaceholder.typicode.com/posts/1\") .then(response =\u003e response.json()) .then(data =\u003e console.log(data)) .catch(err =\u003e console.error(err)); Hoặc với async/await: javascript Sao chép mã async function getPost() { try { const res = await fetch(\"https://jsonplaceholder.typicode.com/posts/1\"); const data = await res.json(); console.log(data); } catch (err) { console.error(err); } } getPost(); Ví dụ POST dữ liệu:\nSao chép mã fetch(\"https://jsonplaceholder.typicode.com/posts\", { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: JSON.stringify({ title: \"Hello\", body: \"Bài viết test\", userId: 1 }) }) .then(res =\u003e res.json()) .then(data =\u003e console.log(data)); CORS là gì? CORS (Cross-Origin Resource Sharing) là cơ chế bảo mật của trình duyệt:\nNgăn frontend từ domain A gọi API sang domain B nếu backend B không cho phép.\nĐược thực hiện bằng cách kiểm tra HTTP Header Access-Control-Allow-Origin.\nVí dụ:\nFrontend chạy ở http://localhost:3000.\nBackend API ở http://api.example.com.\nNếu API không trả header:\nAccess-Control-Allow-Origin: http://localhost:3000 → Trình duyệt sẽ chặn request và báo lỗi CORS.\nCách xử lý CORS Backend thêm header CORS Ví dụ với ExpressJS:\nconst express = require(\"express\"); const cors = require(\"cors\"); const app = express(); app.use(cors()); // cho phép mọi origin // app.use(cors({ origin: \"http://localhost:3000\" })); // chỉ cho phép 1 domain app.get(\"/data\", (req, res) =\u003e { res.json({ msg: \"Hello từ server!\" }); }); app.listen(4000, () =\u003e console.log(\"Server chạy ở cổng 4000\")); Frontend proxy request Trong React (Create React App), có thể thêm vào package.json:\n\"proxy\": \"http://localhost:4000\" Khi đó gọi /data sẽ được chuyển tiếp sang backend, tránh lỗi CORS.\nSo sánh Fetch API và XMLHttpRequest Tiêu chí Fetch API XMLHttpRequest (XHR) Cú pháp Ngắn gọn, dùng Promise/async-await Dài dòng, callback-based Hỗ trợ stream Có Không Xử lý lỗi HTTP Không tự throw (phải check res.ok) Tự quản lý status code Được hỗ trợ rộng rãi Tất cả browser hiện đại Vẫn hỗ trợ nhưng dần lỗi thời Ứng dụng thực tế Gọi API REST từ frontend React/Vue/Angular.\nUpload file qua API.\nTích hợp API bên thứ ba (Google, Facebook, GitHub).\nXây dựng ứng dụng SPA cần giao tiếp với backend.\nKết luận Fetch API là cách hiện đại và gọn gàng để gọi HTTP request từ frontend.\nCORS là lớp bảo mật bắt buộc của trình duyệt, không phải lỗi của code frontend.\nGiải pháp: cấu hình backend đúng cách hoặc dùng proxy.\n🚀 Khi hiểu rõ Fetch API và CORS, bạn sẽ tự tin hơn trong việc xây dựng các ứng dụng web hiện đại, tránh được những lỗi “khó hiểu” khi gọi API giữa các domain khác nhau\n",
+  "wordCount" : "564",
+  "inLanguage": "vi",
+  "datePublished": "2025-09-14T00:00:00Z",
+  "dateModified": "2025-09-14T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Blog Lập Trình Mạng",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://hungson1002.github.io/Blog-Mang/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://hungson1002.github.io/Blog-Mang/" accesskey="h" title="Blog Lập Trình Mạng (Alt + H)">Blog Lập Trình Mạng</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/blog/" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/about/" title="Profile">
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header><main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://hungson1002.github.io/Blog-Mang/">Trang chủ</a>&nbsp;»&nbsp;<a href="https://hungson1002.github.io/Blog-Mang/blog/">Blog</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Hiểu rõ Fetch API &amp; vấn đề CORS trong JavaScript
+    </h1>
+    <div class="post-meta"><span title='2025-09-14 00:00:00 +0000 UTC'>tháng 9 14, 2025</span>&nbsp;·&nbsp;3 phút
+
+</div>
+  </header> 
+  <div class="post-content"><h2 id="giới-thiệu">Giới thiệu<a hidden class="anchor" aria-hidden="true" href="#giới-thiệu">#</a></h2>
+<p>Trong lập trình web hiện đại, <strong>JavaScript</strong> đóng vai trò trung tâm trong việc giao tiếp giữa frontend và backend.<br>
+Một trong những công cụ mạnh mẽ nhất để gọi API từ trình duyệt là <strong>Fetch API</strong>. Nó thay thế <code>XMLHttpRequest</code> cũ kỹ, mang đến cú pháp gọn gàng hơn dựa trên <strong>Promise</strong> và hỗ trợ tốt với <strong>async/await</strong>.</p>
+<p>Tuy nhiên, khi gọi API từ domain khác, bạn thường gặp lỗi khó chịu:</p>
+<pre tabindex="0"><code class="language-Access" data-lang="Access">from origin &#39;http://localhost:3000&#39; has been blocked by CORS policy
+</code></pre><p>👉 Đây chính là <strong>CORS (Cross-Origin Resource Sharing)</strong> – cơ chế bảo mật của trình duyệt.</p>
+<p>Trong bài viết này, ta sẽ tìm hiểu:</p>
+<ol>
+<li>Fetch API là gì và cú pháp cơ bản.</li>
+<li>Các ví dụ sử dụng Fetch API.</li>
+<li>CORS là gì và tại sao gây lỗi.</li>
+<li>Cách backend và frontend xử lý CORS.</li>
+<li>So sánh Fetch API với XMLHttpRequest.</li>
+<li>Kết luận và best practices.</li>
+</ol>
+<hr>
+<h2 id="fetch-api-cơ-bản">Fetch API cơ bản<a hidden class="anchor" aria-hidden="true" href="#fetch-api-cơ-bản">#</a></h2>
+<p>Ví dụ gọi API GET:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#34;https://jsonplaceholder.typicode.com/posts/1&#34;</span>)
+</span></span><span style="display:flex;"><span>  .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">response</span> =&gt; <span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">json</span>())
+</span></span><span style="display:flex;"><span>  .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">data</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">data</span>))
+</span></span><span style="display:flex;"><span>  .<span style="color:#66d9ef">catch</span>(<span style="color:#a6e22e">err</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">error</span>(<span style="color:#a6e22e">err</span>));
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Hoặc</span> <span style="color:#a6e22e">với</span> <span style="color:#66d9ef">async</span><span style="color:#f92672">/</span><span style="color:#66d9ef">await</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">javascript</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Sao</span> <span style="color:#a6e22e">chép</span> <span style="color:#a6e22e">mã</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getPost</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">res</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#34;https://jsonplaceholder.typicode.com/posts/1&#34;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">data</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">json</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">data</span>);
+</span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">catch</span> (<span style="color:#a6e22e">err</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">error</span>(<span style="color:#a6e22e">err</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">getPost</span>();
+</span></span></code></pre></div><p>Ví dụ POST dữ liệu:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#a6e22e">Sao</span> <span style="color:#a6e22e">chép</span> <span style="color:#a6e22e">mã</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#34;https://jsonplaceholder.typicode.com/posts&#34;</span>, {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">method</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;POST&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">headers</span><span style="color:#f92672">:</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;Content-Type&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;application/json&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">body</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">JSON</span>.<span style="color:#a6e22e">stringify</span>({
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">title</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;Hello&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">body</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;Bài viết test&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">userId</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>  })
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>  .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">res</span> =&gt; <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">json</span>())
+</span></span><span style="display:flex;"><span>  .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">data</span> =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">data</span>));
+</span></span></code></pre></div><h3 id="cors-là-gì">CORS là gì?<a hidden class="anchor" aria-hidden="true" href="#cors-là-gì">#</a></h3>
+<p>CORS (Cross-Origin Resource Sharing) là cơ chế bảo mật của trình duyệt:</p>
+<p>Ngăn frontend từ domain A gọi API sang domain B nếu backend B không cho phép.</p>
+<p>Được thực hiện bằng cách kiểm tra HTTP Header Access-Control-Allow-Origin.</p>
+<p>Ví dụ:</p>
+<p><code>Frontend chạy ở http://localhost:3000.</code></p>
+<p><code>Backend API ở http://api.example.com.</code></p>
+<p>Nếu API không trả header:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-arduino" data-lang="arduino"><span style="display:flex;"><span>Access<span style="color:#f92672">-</span>Control<span style="color:#f92672">-</span>Allow<span style="color:#f92672">-</span>Origin: http:<span style="color:#75715e">//localhost:3000
+</span></span></span></code></pre></div><p>→ Trình duyệt sẽ chặn request và báo lỗi CORS.</p>
+<p>Cách xử lý CORS
+Backend thêm header CORS
+Ví dụ với ExpressJS:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">express</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;express&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">cors</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;cors&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">app</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">express</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>(<span style="color:#a6e22e">cors</span>()); <span style="color:#75715e">// cho phép mọi origin
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// app.use(cors({ origin: &#34;http://localhost:3000&#34; })); // chỉ cho phép 1 domain
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;/data&#34;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">json</span>({ <span style="color:#a6e22e">msg</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;Hello từ server!&#34;</span> });
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">listen</span>(<span style="color:#ae81ff">4000</span>, () =&gt; <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Server chạy ở cổng 4000&#34;</span>));
+</span></span></code></pre></div><p>Frontend proxy request
+Trong React (Create React App), có thể thêm vào package.json:</p>
+<pre tabindex="0"><code>&#34;proxy&#34;: &#34;http://localhost:4000&#34;
+</code></pre><p>Khi đó gọi /data sẽ được chuyển tiếp sang backend, tránh lỗi CORS.</p>
+<h3 id="so-sánh-fetch-api-và-xmlhttprequest">So sánh Fetch API và XMLHttpRequest<a hidden class="anchor" aria-hidden="true" href="#so-sánh-fetch-api-và-xmlhttprequest">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Tiêu chí</th>
+          <th>Fetch API</th>
+          <th>XMLHttpRequest (XHR)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Cú pháp</td>
+          <td>Ngắn gọn, dùng Promise/async-await</td>
+          <td>Dài dòng, callback-based</td>
+      </tr>
+      <tr>
+          <td>Hỗ trợ stream</td>
+          <td>Có</td>
+          <td>Không</td>
+      </tr>
+      <tr>
+          <td>Xử lý lỗi HTTP</td>
+          <td>Không tự throw (phải check <code>res.ok</code>)</td>
+          <td>Tự quản lý status code</td>
+      </tr>
+      <tr>
+          <td>Được hỗ trợ rộng rãi</td>
+          <td>Tất cả browser hiện đại</td>
+          <td>Vẫn hỗ trợ nhưng dần lỗi thời</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="ứng-dụng-thực-tế">Ứng dụng thực tế<a hidden class="anchor" aria-hidden="true" href="#ứng-dụng-thực-tế">#</a></h3>
+<ul>
+<li>
+<p>Gọi API REST từ frontend React/Vue/Angular.</p>
+</li>
+<li>
+<p>Upload file qua API.</p>
+</li>
+<li>
+<p>Tích hợp API bên thứ ba (Google, Facebook, GitHub).</p>
+</li>
+<li>
+<p>Xây dựng ứng dụng SPA cần giao tiếp với backend.</p>
+</li>
+</ul>
+<h3 id="kết-luận">Kết luận<a hidden class="anchor" aria-hidden="true" href="#kết-luận">#</a></h3>
+<p>Fetch API là cách hiện đại và gọn gàng để gọi HTTP request từ frontend.</p>
+<p>CORS là lớp bảo mật bắt buộc của trình duyệt, không phải lỗi của code frontend.</p>
+<p>Giải pháp: cấu hình backend đúng cách hoặc dùng proxy.</p>
+<p>🚀 Khi hiểu rõ Fetch API và CORS, bạn sẽ tự tin hơn trong việc xây dựng các ứng dụng web hiện đại, tránh được những lỗi “khó hiểu” khi gọi API giữa các domain khác nhau</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/javascript/">JavaScript</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/fetch-api/">Fetch API</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/cors/">CORS</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/web/">Web</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://hungson1002.github.io/Blog-Mang/blog/bao-mat-xss-csrf/">
+    <span class="title">« Trang trước</span>
+    <br>
+    <span>Bảo mật Web: Ngăn chặn XSS &amp; CSRF với JavaScript</span>
+  </a>
+  <a class="next" href="https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/">
+    <span class="title">Trang tiếp theo »</span>
+    <br>
+    <span>Java NIO: Xử lý kết nối mạng Non-Blocking</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://hungson1002.github.io/Blog-Mang/">Blog Lập Trình Mạng</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

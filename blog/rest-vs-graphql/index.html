@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="vi" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>REST vs GraphQL: So sánh và cách lựa chọn | Blog Lập Trình Mạng</title>
+<meta name="keywords" content="API, REST, GraphQL, Web Development">
+<meta name="description" content="Giới thiệu
+Trong lập trình web và mobile, API là cầu nối giữa client và server. Trong nhiều năm, REST (Representational State Transfer) đã trở thành chuẩn mực. Tuy nhiên, khi ứng dụng ngày càng phức tạp, REST dần bộc lộ hạn chế.
+GraphQL ra đời (2015, bởi Facebook) như một giải pháp thay thế REST, cho phép client yêu cầu chính xác dữ liệu cần thiết. Ngày nay, nhiều công ty lớn như GitHub, Shopify, Twitter đều cung cấp API GraphQL.">
+<meta name="author" content="">
+<link rel="canonical" href="https://hungson1002.github.io/Blog-Mang/blog/rest-vs-graphql/">
+<link crossorigin="anonymous" href="/Blog-Mang/assets/css/stylesheet.2211ca3164be7830024f6aad2b3a2e520843a64f8f048445c3401c1249aa051d.css" integrity="sha256-IhHKMWS&#43;eDACT2qtKzouUghDpk&#43;PBIRFw0AcEkmqBR0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://hungson1002.github.io/Blog-Mang/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://hungson1002.github.io/Blog-Mang/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://hungson1002.github.io/Blog-Mang/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://hungson1002.github.io/Blog-Mang/apple-touch-icon.png">
+<link rel="mask-icon" href="https://hungson1002.github.io/Blog-Mang/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="vi" href="https://hungson1002.github.io/Blog-Mang/blog/rest-vs-graphql/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="/Blog-Mang/css/custom.min.92463d3042cb523b4e43887053e2563d6060fe3a2f96bd3d0e2879a2337831c2.css">
+
+<script defer>
+
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('table').forEach(tbl => {
+		const rows = Array.from(tbl.rows);
+		if (!rows.length) return;
+		
+		const lastCells = rows.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+		if (!lastCells.length) return;
+		const allEmpty = lastCells.every(c => {
+			
+			const textEmpty = c.textContent.trim() === '';
+			const hasContentEl = c.querySelector('img, code, pre, a, strong, em, span:not(:empty)');
+			return textEmpty && !hasContentEl;
+		});
+		if (allEmpty) {
+			lastCells.forEach(c => c.remove());
+			
+			const rows2 = Array.from(tbl.rows);
+			if (rows2.length) {
+				const lastCells2 = rows2.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+				const allEmpty2 = lastCells2.every(c => c.textContent.trim() === '' && !c.querySelector('img,code,pre,a,strong,em,span:not(:empty)'));
+				if (allEmpty2) lastCells2.forEach(c => c.remove());
+			}
+		}
+	});
+	
+	const hdr = document.querySelector('.header');
+	if (hdr) {
+		let lastY = window.scrollY;
+		const onScroll = () => {
+			const y = window.scrollY;
+			
+			if (y > 10) hdr.classList.add('is-scrolled'); else hdr.classList.remove('is-scrolled');
+			
+			if (y > lastY && y > 64) {
+				
+				hdr.classList.add('is-hidden');
+			} else {
+				
+				hdr.classList.remove('is-hidden');
+			}
+			lastY = y;
+		};
+		
+		const setOffset = () => {
+			const h = hdr.getBoundingClientRect().height; 
+			document.documentElement.style.setProperty('--dynamic-header-space', (h + 12) + 'px');
+		};
+		setOffset();
+		window.addEventListener('resize', setOffset, { passive: true });
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+});
+</script>
+<meta property="og:url" content="https://hungson1002.github.io/Blog-Mang/blog/rest-vs-graphql/">
+  <meta property="og:site_name" content="Blog Lập Trình Mạng">
+  <meta property="og:title" content="REST vs GraphQL: So sánh và cách lựa chọn">
+  <meta property="og:description" content="Giới thiệu Trong lập trình web và mobile, API là cầu nối giữa client và server. Trong nhiều năm, REST (Representational State Transfer) đã trở thành chuẩn mực. Tuy nhiên, khi ứng dụng ngày càng phức tạp, REST dần bộc lộ hạn chế.
+GraphQL ra đời (2015, bởi Facebook) như một giải pháp thay thế REST, cho phép client yêu cầu chính xác dữ liệu cần thiết. Ngày nay, nhiều công ty lớn như GitHub, Shopify, Twitter đều cung cấp API GraphQL.">
+  <meta property="og:locale" content="vi">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:tag" content="API">
+    <meta property="article:tag" content="REST">
+    <meta property="article:tag" content="GraphQL">
+    <meta property="article:tag" content="Web Development">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="REST vs GraphQL: So sánh và cách lựa chọn">
+<meta name="twitter:description" content="Giới thiệu
+Trong lập trình web và mobile, API là cầu nối giữa client và server. Trong nhiều năm, REST (Representational State Transfer) đã trở thành chuẩn mực. Tuy nhiên, khi ứng dụng ngày càng phức tạp, REST dần bộc lộ hạn chế.
+GraphQL ra đời (2015, bởi Facebook) như một giải pháp thay thế REST, cho phép client yêu cầu chính xác dữ liệu cần thiết. Ngày nay, nhiều công ty lớn như GitHub, Shopify, Twitter đều cung cấp API GraphQL.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "REST vs GraphQL: So sánh và cách lựa chọn",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/rest-vs-graphql/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "REST vs GraphQL: So sánh và cách lựa chọn",
+  "name": "REST vs GraphQL: So sánh và cách lựa chọn",
+  "description": "Giới thiệu Trong lập trình web và mobile, API là cầu nối giữa client và server. Trong nhiều năm, REST (Representational State Transfer) đã trở thành chuẩn mực. Tuy nhiên, khi ứng dụng ngày càng phức tạp, REST dần bộc lộ hạn chế.\nGraphQL ra đời (2015, bởi Facebook) như một giải pháp thay thế REST, cho phép client yêu cầu chính xác dữ liệu cần thiết. Ngày nay, nhiều công ty lớn như GitHub, Shopify, Twitter đều cung cấp API GraphQL.\n",
+  "keywords": [
+    "API", "REST", "GraphQL", "Web Development"
+  ],
+  "articleBody": "Giới thiệu Trong lập trình web và mobile, API là cầu nối giữa client và server. Trong nhiều năm, REST (Representational State Transfer) đã trở thành chuẩn mực. Tuy nhiên, khi ứng dụng ngày càng phức tạp, REST dần bộc lộ hạn chế.\nGraphQL ra đời (2015, bởi Facebook) như một giải pháp thay thế REST, cho phép client yêu cầu chính xác dữ liệu cần thiết. Ngày nay, nhiều công ty lớn như GitHub, Shopify, Twitter đều cung cấp API GraphQL.\nTrong bài viết này, chúng ta sẽ:\nTìm hiểu REST API và GraphQL API. Xem ví dụ minh họa. So sánh ưu – nhược điểm. Đề xuất khi nào chọn REST, khi nào chọn GraphQL. REST API là gì? REST API dựa trên HTTP và tài nguyên (resource).\nMỗi tài nguyên (ví dụ users, posts) có một URL riêng và được thao tác bằng các phương thức HTTP:\nGET /users → Lấy danh sách người dùng GET /users/1 → Lấy thông tin user có ID = 1 POST /users → Tạo user mới PUT /users/1 → Cập nhật user ID = 1 DELETE /users/1 → Xóa user Ví dụ trả về JSON:\n{ \"id\": 1, \"name\": \"Nguyen Van A\", \"email\": \"vana@example.com\" } GraphQL API là gì? GraphQL chỉ có 1 endpoint duy nhất (thường là /graphql). Client sẽ gửi query để lấy dữ liệu đúng như mong muốn.\nVí dụ query lấy user có id = 1 và chỉ cần tên + email:\n{ user(id: 1) { name email } } 👉 Kết quả trả về:\n{ \"data\": { \"user\": { \"name\": \"Nguyen Van A\", \"email\": \"vana@example.com\" } } } So với REST (thường trả về nhiều trường không cần thiết), GraphQL giúp tối ưu dữ liệu truyền tải.\nSo sánh REST và GraphQL Tiêu chí REST API GraphQL API Endpoint Nhiều (mỗi tài nguyên 1 URL) Một endpoint duy nhất /graphql Dữ liệu trả về Cố định, có thể thừa dữ liệu Linh hoạt, chỉ lấy đúng dữ liệu cần Overfetching/Underfetching Thường gặp (thừa/thiếu dữ liệu) Không xảy ra Cách gọi API Theo tài nguyên và HTTP method Query hoặc Mutation Học tập, triển khai Dễ, phổ biến rộng rãi Phức tạp hơn, cần học query language Caching Hỗ trợ tốt (HTTP cache) Phức tạp hơn, cần giải pháp riêng Khi phù hợp Ứng dụng nhỏ, API đơn giản, public API Ứng dụng lớn, client đa dạng (web, mobile) Ví dụ REST vs GraphQL REST – lấy user + danh sách bài viết:\nGọi GET /users/1 → trả về thông tin user.\nGọi tiếp GET /users/1/posts → trả về danh sách bài viết.\n👉 Phải gọi 2 API.\nGraphQL – lấy user + bài viết trong 1 query:\n{ user(id: 1) { name email posts { title createdAt } } } 👉 Chỉ cần 1 request là đủ.\nKhi nào chọn REST, khi nào chọn GraphQL? Chọn REST nếu:\nỨng dụng nhỏ, API đơn giản.\nMuốn tận dụng cache HTTP có sẵn.\nCần triển khai nhanh, dễ học, dễ tích hợp.\nChọn GraphQL nếu:\nỨng dụng lớn, dữ liệu phức tạp, client đa dạng.\nMuốn giảm số lượng request.\nMuốn client chủ động chọn dữ liệu.\nKết luận REST và GraphQL đều là công cụ mạnh mẽ cho lập trình API.\nREST: đơn giản, phổ biến, dễ áp dụng cho dự án nhỏ và public API.\nGraphQL: hiện đại, tối ưu hóa dữ liệu, phù hợp cho ứng dụng phức tạp và đa nền tảng.\n🚀 Không có giải pháp nào “tuyệt đối tốt hơn”, mà quan trọng là chọn đúng công cụ cho đúng bài toán.\n",
+  "wordCount" : "600",
+  "inLanguage": "vi",
+  "datePublished": "2025-09-14T00:00:00Z",
+  "dateModified": "2025-09-14T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://hungson1002.github.io/Blog-Mang/blog/rest-vs-graphql/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Blog Lập Trình Mạng",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://hungson1002.github.io/Blog-Mang/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://hungson1002.github.io/Blog-Mang/" accesskey="h" title="Blog Lập Trình Mạng (Alt + H)">Blog Lập Trình Mạng</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/blog/" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/about/" title="Profile">
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header><main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://hungson1002.github.io/Blog-Mang/">Trang chủ</a>&nbsp;»&nbsp;<a href="https://hungson1002.github.io/Blog-Mang/blog/">Blog</a></div>
+    <h1 class="post-title entry-hint-parent">
+      REST vs GraphQL: So sánh và cách lựa chọn
+    </h1>
+    <div class="post-meta"><span title='2025-09-14 00:00:00 +0000 UTC'>tháng 9 14, 2025</span>&nbsp;·&nbsp;3 phút
+
+</div>
+  </header> 
+  <div class="post-content"><h2 id="giới-thiệu">Giới thiệu<a hidden class="anchor" aria-hidden="true" href="#giới-thiệu">#</a></h2>
+<p>Trong lập trình web và mobile, <strong>API</strong> là cầu nối giữa client và server. Trong nhiều năm, <strong>REST (Representational State Transfer)</strong> đã trở thành chuẩn mực. Tuy nhiên, khi ứng dụng ngày càng phức tạp, REST dần bộc lộ hạn chế.</p>
+<p><strong>GraphQL</strong> ra đời (2015, bởi Facebook) như một giải pháp thay thế REST, cho phép client <strong>yêu cầu chính xác dữ liệu cần thiết</strong>. Ngày nay, nhiều công ty lớn như GitHub, Shopify, Twitter đều cung cấp API GraphQL.</p>
+<p>Trong bài viết này, chúng ta sẽ:</p>
+<ol>
+<li>Tìm hiểu REST API và GraphQL API.</li>
+<li>Xem ví dụ minh họa.</li>
+<li>So sánh ưu – nhược điểm.</li>
+<li>Đề xuất khi nào chọn REST, khi nào chọn GraphQL.</li>
+</ol>
+<hr>
+<h2 id="rest-api-là-gì">REST API là gì?<a hidden class="anchor" aria-hidden="true" href="#rest-api-là-gì">#</a></h2>
+<p>REST API dựa trên <strong>HTTP và tài nguyên (resource)</strong>.<br>
+Mỗi tài nguyên (ví dụ <code>users</code>, <code>posts</code>) có một URL riêng và được thao tác bằng các phương thức HTTP:</p>
+<ul>
+<li><code>GET /users</code> → Lấy danh sách người dùng</li>
+<li><code>GET /users/1</code> → Lấy thông tin user có ID = 1</li>
+<li><code>POST /users</code> → Tạo user mới</li>
+<li><code>PUT /users/1</code> → Cập nhật user ID = 1</li>
+<li><code>DELETE /users/1</code> → Xóa user</li>
+</ul>
+<p>Ví dụ trả về JSON:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Nguyen Van A&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;email&#34;</span>: <span style="color:#e6db74">&#34;vana@example.com&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="graphql-api-là-gì">GraphQL API là gì?<a hidden class="anchor" aria-hidden="true" href="#graphql-api-là-gì">#</a></h3>
+<p>GraphQL chỉ có 1 endpoint duy nhất (thường là /graphql).
+Client sẽ gửi query để lấy dữ liệu đúng như mong muốn.</p>
+<p>Ví dụ query lấy user có id = 1 và chỉ cần tên + email:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-graphql" data-lang="graphql"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  user(id: <span style="color:#a6e22e">1</span>) {
+</span></span><span style="display:flex;"><span>    name
+</span></span><span style="display:flex;"><span>    email
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>👉 Kết quả trả về:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;data&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;user&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Nguyen Van A&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;email&#34;</span>: <span style="color:#e6db74">&#34;vana@example.com&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>So với REST (thường trả về nhiều trường không cần thiết), GraphQL giúp tối ưu dữ liệu truyền tải.</p>
+<h3 id="so-sánh-rest-và-graphql">So sánh REST và GraphQL<a hidden class="anchor" aria-hidden="true" href="#so-sánh-rest-và-graphql">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Tiêu chí</th>
+          <th>REST API</th>
+          <th>GraphQL API</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Endpoint</td>
+          <td>Nhiều (mỗi tài nguyên 1 URL)</td>
+          <td>Một endpoint duy nhất <code>/graphql</code></td>
+      </tr>
+      <tr>
+          <td>Dữ liệu trả về</td>
+          <td>Cố định, có thể thừa dữ liệu</td>
+          <td>Linh hoạt, chỉ lấy đúng dữ liệu cần</td>
+      </tr>
+      <tr>
+          <td>Overfetching/Underfetching</td>
+          <td>Thường gặp (thừa/thiếu dữ liệu)</td>
+          <td>Không xảy ra</td>
+      </tr>
+      <tr>
+          <td>Cách gọi API</td>
+          <td>Theo tài nguyên và HTTP method</td>
+          <td>Query hoặc Mutation</td>
+      </tr>
+      <tr>
+          <td>Học tập, triển khai</td>
+          <td>Dễ, phổ biến rộng rãi</td>
+          <td>Phức tạp hơn, cần học query language</td>
+      </tr>
+      <tr>
+          <td>Caching</td>
+          <td>Hỗ trợ tốt (HTTP cache)</td>
+          <td>Phức tạp hơn, cần giải pháp riêng</td>
+      </tr>
+      <tr>
+          <td>Khi phù hợp</td>
+          <td>Ứng dụng nhỏ, API đơn giản, public API</td>
+          <td>Ứng dụng lớn, client đa dạng (web, mobile)</td>
+      </tr>
+  </tbody>
+</table>
+<p>Ví dụ REST vs GraphQL
+REST – lấy user + danh sách bài viết:</p>
+<p>Gọi <code>GET /users/1</code> → trả về thông tin user.</p>
+<p>Gọi tiếp <code>GET /users/1/posts</code> → trả về danh sách bài viết.</p>
+<p>👉 Phải gọi 2 API.</p>
+<p>GraphQL – lấy user + bài viết trong 1 query:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-graphql" data-lang="graphql"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  user(id: <span style="color:#a6e22e">1</span>) {
+</span></span><span style="display:flex;"><span>    name
+</span></span><span style="display:flex;"><span>    email
+</span></span><span style="display:flex;"><span>    posts {
+</span></span><span style="display:flex;"><span>      title
+</span></span><span style="display:flex;"><span>      createdAt
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>👉 Chỉ cần 1 request là đủ.</p>
+<h3 id="khi-nào-chọn-rest-khi-nào-chọn-graphql">Khi nào chọn REST, khi nào chọn GraphQL?<a hidden class="anchor" aria-hidden="true" href="#khi-nào-chọn-rest-khi-nào-chọn-graphql">#</a></h3>
+<p><strong>Chọn REST nếu:</strong></p>
+<ul>
+<li>
+<p>Ứng dụng nhỏ, API đơn giản.</p>
+</li>
+<li>
+<p>Muốn tận dụng cache HTTP có sẵn.</p>
+</li>
+<li>
+<p>Cần triển khai nhanh, dễ học, dễ tích hợp.</p>
+</li>
+</ul>
+<p><strong>Chọn GraphQL nếu:</strong></p>
+<ul>
+<li>
+<p>Ứng dụng lớn, dữ liệu phức tạp, client đa dạng.</p>
+</li>
+<li>
+<p>Muốn giảm số lượng request.</p>
+</li>
+<li>
+<p>Muốn client chủ động chọn dữ liệu.</p>
+</li>
+</ul>
+<h3 id="kết-luận">Kết luận<a hidden class="anchor" aria-hidden="true" href="#kết-luận">#</a></h3>
+<p>REST và GraphQL đều là công cụ mạnh mẽ cho lập trình API.</p>
+<p>REST: đơn giản, phổ biến, dễ áp dụng cho dự án nhỏ và public API.</p>
+<p>GraphQL: hiện đại, tối ưu hóa dữ liệu, phù hợp cho ứng dụng phức tạp và đa nền tảng.</p>
+<p>🚀 Không có giải pháp nào “tuyệt đối tốt hơn”, mà quan trọng là chọn đúng công cụ cho đúng bài toán.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/api/">API</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/rest/">REST</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/graphql/">GraphQL</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/web-development/">Web Development</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/">
+    <span class="title">« Trang trước</span>
+    <br>
+    <span>Kiểm thử ứng dụng mạng bằng JUnit &amp; Testcontainers</span>
+  </a>
+  <a class="next" href="https://hungson1002.github.io/Blog-Mang/blog/tcp-vs-udp-trong-java/">
+    <span class="title">Trang tiếp theo »</span>
+    <br>
+    <span>TCP vs UDP trong Java: Nên chọn giao thức nào?</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://hungson1002.github.io/Blog-Mang/">Blog Lập Trình Mạng</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

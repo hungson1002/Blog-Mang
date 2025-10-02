@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>NIO on Blog Lập Trình Mạng</title>
+    <link>https://hungson1002.github.io/Blog-Mang/tags/nio/</link>
+    <description>Recent content in NIO on Blog Lập Trình Mạng</description>
+    <generator>Hugo -- 0.150.0</generator>
+    <language>vi</language>
+    <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://hungson1002.github.io/Blog-Mang/tags/nio/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Java NIO: Xử lý kết nối mạng Non-Blocking</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong các ứng dụng mạng truyền thống viết bằng &lt;strong&gt;Java I/O&lt;/strong&gt;, mỗi kết nối từ client sẽ được gắn với một &lt;strong&gt;thread riêng&lt;/strong&gt;. Cách tiếp cận này đơn giản nhưng có nhược điểm: khi số lượng kết nối tăng lên hàng nghìn, ứng dụng sẽ tiêu tốn rất nhiều bộ nhớ và CPU để quản lý thread.&lt;/p&gt;
+&lt;p&gt;Để giải quyết vấn đề này, từ &lt;strong&gt;Java 1.4&lt;/strong&gt;, gói &lt;strong&gt;Java NIO (New I/O)&lt;/strong&gt; được giới thiệu. NIO cho phép xử lý &lt;strong&gt;non-blocking I/O&lt;/strong&gt;, nghĩa là một thread có thể quản lý nhiều kết nối cùng lúc, giúp ứng dụng &lt;strong&gt;mở rộng (scalable)&lt;/strong&gt; hơn.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="vi" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>WebSocket với Node.js: Giao tiếp real-time đơn giản | Blog Lập Trình Mạng</title>
+<meta name="keywords" content="JavaScript, Node.js, WebSocket, Realtime">
+<meta name="description" content="Giới thiệu
+Trong các ứng dụng hiện đại như chat online, game multiplayer, hay ứng dụng theo dõi chứng khoán, yêu cầu quan trọng là dữ liệu phải được cập nhật theo thời gian thực (real-time).
+HTTP truyền thống hoạt động theo cơ chế request – response: client gửi yêu cầu, server trả về dữ liệu. Điều này không phù hợp cho các ứng dụng real-time, nơi dữ liệu liên tục thay đổi.">
+<meta name="author" content="">
+<link rel="canonical" href="https://hungson1002.github.io/Blog-Mang/blog/websocket-nodejs-realtime/">
+<link crossorigin="anonymous" href="/Blog-Mang/assets/css/stylesheet.2211ca3164be7830024f6aad2b3a2e520843a64f8f048445c3401c1249aa051d.css" integrity="sha256-IhHKMWS&#43;eDACT2qtKzouUghDpk&#43;PBIRFw0AcEkmqBR0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://hungson1002.github.io/Blog-Mang/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://hungson1002.github.io/Blog-Mang/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://hungson1002.github.io/Blog-Mang/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://hungson1002.github.io/Blog-Mang/apple-touch-icon.png">
+<link rel="mask-icon" href="https://hungson1002.github.io/Blog-Mang/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="vi" href="https://hungson1002.github.io/Blog-Mang/blog/websocket-nodejs-realtime/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="/Blog-Mang/css/custom.min.92463d3042cb523b4e43887053e2563d6060fe3a2f96bd3d0e2879a2337831c2.css">
+
+<script defer>
+
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('table').forEach(tbl => {
+		const rows = Array.from(tbl.rows);
+		if (!rows.length) return;
+		
+		const lastCells = rows.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+		if (!lastCells.length) return;
+		const allEmpty = lastCells.every(c => {
+			
+			const textEmpty = c.textContent.trim() === '';
+			const hasContentEl = c.querySelector('img, code, pre, a, strong, em, span:not(:empty)');
+			return textEmpty && !hasContentEl;
+		});
+		if (allEmpty) {
+			lastCells.forEach(c => c.remove());
+			
+			const rows2 = Array.from(tbl.rows);
+			if (rows2.length) {
+				const lastCells2 = rows2.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+				const allEmpty2 = lastCells2.every(c => c.textContent.trim() === '' && !c.querySelector('img,code,pre,a,strong,em,span:not(:empty)'));
+				if (allEmpty2) lastCells2.forEach(c => c.remove());
+			}
+		}
+	});
+	
+	const hdr = document.querySelector('.header');
+	if (hdr) {
+		let lastY = window.scrollY;
+		const onScroll = () => {
+			const y = window.scrollY;
+			
+			if (y > 10) hdr.classList.add('is-scrolled'); else hdr.classList.remove('is-scrolled');
+			
+			if (y > lastY && y > 64) {
+				
+				hdr.classList.add('is-hidden');
+			} else {
+				
+				hdr.classList.remove('is-hidden');
+			}
+			lastY = y;
+		};
+		
+		const setOffset = () => {
+			const h = hdr.getBoundingClientRect().height; 
+			document.documentElement.style.setProperty('--dynamic-header-space', (h + 12) + 'px');
+		};
+		setOffset();
+		window.addEventListener('resize', setOffset, { passive: true });
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+});
+</script>
+<meta property="og:url" content="https://hungson1002.github.io/Blog-Mang/blog/websocket-nodejs-realtime/">
+  <meta property="og:site_name" content="Blog Lập Trình Mạng">
+  <meta property="og:title" content="WebSocket với Node.js: Giao tiếp real-time đơn giản">
+  <meta property="og:description" content="Giới thiệu Trong các ứng dụng hiện đại như chat online, game multiplayer, hay ứng dụng theo dõi chứng khoán, yêu cầu quan trọng là dữ liệu phải được cập nhật theo thời gian thực (real-time).
+HTTP truyền thống hoạt động theo cơ chế request – response: client gửi yêu cầu, server trả về dữ liệu. Điều này không phù hợp cho các ứng dụng real-time, nơi dữ liệu liên tục thay đổi.">
+  <meta property="og:locale" content="vi">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:tag" content="JavaScript">
+    <meta property="article:tag" content="Node.js">
+    <meta property="article:tag" content="WebSocket">
+    <meta property="article:tag" content="Realtime">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WebSocket với Node.js: Giao tiếp real-time đơn giản">
+<meta name="twitter:description" content="Giới thiệu
+Trong các ứng dụng hiện đại như chat online, game multiplayer, hay ứng dụng theo dõi chứng khoán, yêu cầu quan trọng là dữ liệu phải được cập nhật theo thời gian thực (real-time).
+HTTP truyền thống hoạt động theo cơ chế request – response: client gửi yêu cầu, server trả về dữ liệu. Điều này không phù hợp cho các ứng dụng real-time, nơi dữ liệu liên tục thay đổi.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "WebSocket với Node.js: Giao tiếp real-time đơn giản",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/websocket-nodejs-realtime/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "WebSocket với Node.js: Giao tiếp real-time đơn giản",
+  "name": "WebSocket với Node.js: Giao tiếp real-time đơn giản",
+  "description": "Giới thiệu Trong các ứng dụng hiện đại như chat online, game multiplayer, hay ứng dụng theo dõi chứng khoán, yêu cầu quan trọng là dữ liệu phải được cập nhật theo thời gian thực (real-time).\nHTTP truyền thống hoạt động theo cơ chế request – response: client gửi yêu cầu, server trả về dữ liệu. Điều này không phù hợp cho các ứng dụng real-time, nơi dữ liệu liên tục thay đổi.\n",
+  "keywords": [
+    "JavaScript", "Node.js", "WebSocket", "Realtime"
+  ],
+  "articleBody": "Giới thiệu Trong các ứng dụng hiện đại như chat online, game multiplayer, hay ứng dụng theo dõi chứng khoán, yêu cầu quan trọng là dữ liệu phải được cập nhật theo thời gian thực (real-time).\nHTTP truyền thống hoạt động theo cơ chế request – response: client gửi yêu cầu, server trả về dữ liệu. Điều này không phù hợp cho các ứng dụng real-time, nơi dữ liệu liên tục thay đổi.\nWebSocket ra đời để giải quyết vấn đề này. Nó cung cấp một kênh kết nối 2 chiều (full-duplex) giữa client và server, cho phép gửi và nhận dữ liệu liên tục mà không cần mỗi lần đều phải request.\nTrong bài viết này, chúng ta sẽ:\nTìm hiểu nguyên lý hoạt động của WebSocket. Viết server WebSocket với Node.js. Viết client WebSocket bằng HTML/JavaScript. So sánh WebSocket với HTTP truyền thống. Ứng dụng thực tế. WebSocket hoạt động như thế nào? Kết nối bắt đầu bằng handshake qua HTTP (client yêu cầu nâng cấp lên WebSocket). Sau khi handshake thành công, cả client và server giữ kết nối mở. Dữ liệu có thể truyền 2 chiều liên tục, gần như không độ trễ. 👉 Đây là điểm khác biệt quan trọng với HTTP truyền thống: client không cần gửi request mới để nhận dữ liệu.\nVí dụ: Tạo WebSocket server với Node.js Chúng ta sẽ dùng thư viện ws – gọn nhẹ, phổ biến trong Node.js.\nCài đặt:\nnpm install ws Tạo server WebSocket:\n// file: server.js const WebSocket = require('ws'); const wss = new WebSocket.Server({ port: 8080 }); wss.on('connection', ws =\u003e { console.log('Client đã kết nối'); ws.on('message', message =\u003e { console.log(`Nhận từ client: ${message}`); ws.send(`Server nhận được: ${message}`); }); ws.send('Xin chào từ WebSocket Server!'); }); console.log(\"WebSocket server chạy tại ws://localhost:8080\"); Ví dụ: Client WebSocket Trong file HTML, ta có thể viết:\n\u003c!DOCTYPE html\u003e \u003chtml\u003e \u003chead\u003e \u003ctitle\u003eWebSocket Demo\u003c/title\u003e \u003c/head\u003e \u003cbody\u003e \u003ch2\u003eKết nối WebSocket\u003c/h2\u003e \u003cinput id=\"msg\" type=\"text\" placeholder=\"Nhập tin nhắn...\" /\u003e \u003cbutton onclick=\"sendMessage()\"\u003eGửi\u003c/button\u003e \u003cul id=\"chat\"\u003e\u003c/ul\u003e \u003cscript\u003e const socket = new WebSocket(\"ws://localhost:8080\"); socket.onopen = () =\u003e { console.log(\"Đã kết nối tới server\"); }; socket.onmessage = (event) =\u003e { const li = document.createElement(\"li\"); li.innerText = \"Server: \" + event.data; document.getElementById(\"chat\").appendChild(li); }; function sendMessage() { const input = document.getElementById(\"msg\"); socket.send(input.value); input.value = \"\"; } \u003c/script\u003e \u003c/body\u003e \u003c/html\u003e 👉 Khi mở trang HTML và nhập tin nhắn, client sẽ gửi dữ liệu qua WebSocket đến server và nhận phản hồi ngay lập tức.\nSo sánh WebSocket và HTTP truyền thống Tiêu chí HTTP (Request – Response) WebSocket (Full-duplex) Kết nối Mỗi request mở \u0026 đóng Giữ kết nối liên tục Chiều giao tiếp 1 chiều (client → server) 2 chiều (client ↔ server) Độ trễ Cao (mỗi lần phải request) Thấp (truyền ngay lập tức) Hiệu quả real-time Không phù hợp Rất phù hợp Ứng dụng Web truyền thống, REST API Chat, game online, IoT, dashboard Ứng dụng thực tế Ứng dụng chat: Messenger, Slack, Zalo.\nGame multiplayer online: đồng bộ trạng thái người chơi.\nRealtime dashboard: hiển thị log hệ thống, chứng khoán, giá crypto.\nIoT: kết nối thiết bị thông minh, gửi dữ liệu sensor liên tục.\nKết luận WebSocket mở ra khả năng truyền dữ liệu 2 chiều, real-time giữa client và server, giúp các ứng dụng hiện đại mượt mà và phản hồi nhanh hơn. Khi kết hợp với Node.js, việc xây dựng một WebSocket server cực kỳ đơn giản, chỉ vài dòng code.\n🚀 Nếu bạn đang làm ứng dụng cần real-time, hãy thử WebSocket – nó sẽ thay đổi hoàn toàn cách bạn xây dựng hệ thống.\n",
+  "wordCount" : "592",
+  "inLanguage": "vi",
+  "datePublished": "2025-09-14T00:00:00Z",
+  "dateModified": "2025-09-14T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://hungson1002.github.io/Blog-Mang/blog/websocket-nodejs-realtime/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Blog Lập Trình Mạng",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://hungson1002.github.io/Blog-Mang/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://hungson1002.github.io/Blog-Mang/" accesskey="h" title="Blog Lập Trình Mạng (Alt + H)">Blog Lập Trình Mạng</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/blog/" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/about/" title="Profile">
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header><main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://hungson1002.github.io/Blog-Mang/">Trang chủ</a>&nbsp;»&nbsp;<a href="https://hungson1002.github.io/Blog-Mang/blog/">Blog</a></div>
+    <h1 class="post-title entry-hint-parent">
+      WebSocket với Node.js: Giao tiếp real-time đơn giản
+    </h1>
+    <div class="post-meta"><span title='2025-09-14 00:00:00 +0000 UTC'>tháng 9 14, 2025</span>&nbsp;·&nbsp;3 phút
+
+</div>
+  </header> 
+  <div class="post-content"><h2 id="giới-thiệu">Giới thiệu<a hidden class="anchor" aria-hidden="true" href="#giới-thiệu">#</a></h2>
+<p>Trong các ứng dụng hiện đại như <strong>chat online</strong>, <strong>game multiplayer</strong>, hay <strong>ứng dụng theo dõi chứng khoán</strong>, yêu cầu quan trọng là <strong>dữ liệu phải được cập nhật theo thời gian thực (real-time)</strong>.<br>
+HTTP truyền thống hoạt động theo cơ chế <strong>request – response</strong>: client gửi yêu cầu, server trả về dữ liệu. Điều này không phù hợp cho các ứng dụng real-time, nơi dữ liệu liên tục thay đổi.</p>
+<p><strong>WebSocket</strong> ra đời để giải quyết vấn đề này. Nó cung cấp một kênh <strong>kết nối 2 chiều (full-duplex)</strong> giữa client và server, cho phép <strong>gửi và nhận dữ liệu liên tục</strong> mà không cần mỗi lần đều phải request.</p>
+<p>Trong bài viết này, chúng ta sẽ:</p>
+<ol>
+<li>Tìm hiểu nguyên lý hoạt động của WebSocket.</li>
+<li>Viết server WebSocket với Node.js.</li>
+<li>Viết client WebSocket bằng HTML/JavaScript.</li>
+<li>So sánh WebSocket với HTTP truyền thống.</li>
+<li>Ứng dụng thực tế.</li>
+</ol>
+<hr>
+<h2 id="websocket-hoạt-động-như-thế-nào">WebSocket hoạt động như thế nào?<a hidden class="anchor" aria-hidden="true" href="#websocket-hoạt-động-như-thế-nào">#</a></h2>
+<ul>
+<li>Kết nối bắt đầu bằng <strong>handshake qua HTTP</strong> (client yêu cầu nâng cấp lên WebSocket).</li>
+<li>Sau khi handshake thành công, cả client và server giữ kết nối mở.</li>
+<li>Dữ liệu có thể <strong>truyền 2 chiều</strong> liên tục, gần như không độ trễ.</li>
+</ul>
+<p>👉 Đây là điểm khác biệt quan trọng với HTTP truyền thống: <strong>client không cần gửi request mới để nhận dữ liệu</strong>.</p>
+<hr>
+<h2 id="ví-dụ-tạo-websocket-server-với-nodejs">Ví dụ: Tạo WebSocket server với Node.js<a hidden class="anchor" aria-hidden="true" href="#ví-dụ-tạo-websocket-server-với-nodejs">#</a></h2>
+<p>Chúng ta sẽ dùng thư viện <strong>ws</strong> – gọn nhẹ, phổ biến trong Node.js.</p>
+<p><strong>Cài đặt:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>npm install ws
+</span></span></code></pre></div><p>Tạo server WebSocket:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#75715e">// file: server.js
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">WebSocket</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;ws&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">wss</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">WebSocket</span>.<span style="color:#a6e22e">Server</span>({ <span style="color:#a6e22e">port</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">8080</span> });
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">wss</span>.<span style="color:#a6e22e">on</span>(<span style="color:#e6db74">&#39;connection&#39;</span>, <span style="color:#a6e22e">ws</span> =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#39;Client đã kết nối&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">ws</span>.<span style="color:#a6e22e">on</span>(<span style="color:#e6db74">&#39;message&#39;</span>, <span style="color:#a6e22e">message</span> =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">`Nhận từ client: </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">message</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">ws</span>.<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">`Server nhận được: </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">message</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>);
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">ws</span>.<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;Xin chào từ WebSocket Server!&#39;</span>);
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;WebSocket server chạy tại ws://localhost:8080&#34;</span>);
+</span></span></code></pre></div><p>Ví dụ: Client WebSocket
+Trong file HTML, ta có thể viết:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span><span style="color:#75715e">&lt;!DOCTYPE html&gt;</span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">html</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">title</span>&gt;WebSocket Demo&lt;/<span style="color:#f92672">title</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">h2</span>&gt;Kết nối WebSocket&lt;/<span style="color:#f92672">h2</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;msg&#34;</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text&#34;</span> <span style="color:#a6e22e">placeholder</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Nhập tin nhắn...&#34;</span> /&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">button</span> <span style="color:#a6e22e">onclick</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;sendMessage()&#34;</span>&gt;Gửi&lt;/<span style="color:#f92672">button</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">ul</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;chat&#34;</span>&gt;&lt;/<span style="color:#f92672">ul</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">socket</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">WebSocket</span>(<span style="color:#e6db74">&#34;ws://localhost:8080&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">socket</span>.<span style="color:#a6e22e">onopen</span> <span style="color:#f92672">=</span> () =&gt; {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;Đã kết nối tới server&#34;</span>);
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">socket</span>.<span style="color:#a6e22e">onmessage</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">event</span>) =&gt; {
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">li</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">createElement</span>(<span style="color:#e6db74">&#34;li&#34;</span>);
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">li</span>.<span style="color:#a6e22e">innerText</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Server: &#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">event</span>.<span style="color:#a6e22e">data</span>;
+</span></span><span style="display:flex;"><span>      document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#34;chat&#34;</span>).<span style="color:#a6e22e">appendChild</span>(<span style="color:#a6e22e">li</span>);
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">sendMessage</span>() {
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">input</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#34;msg&#34;</span>);
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">socket</span>.<span style="color:#a6e22e">send</span>(<span style="color:#a6e22e">input</span>.<span style="color:#a6e22e">value</span>);
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">input</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  &lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">html</span>&gt;
+</span></span></code></pre></div><p>👉 Khi mở trang HTML và nhập tin nhắn, client sẽ gửi dữ liệu qua WebSocket đến server và nhận phản hồi ngay lập tức.</p>
+<h3 id="so-sánh-websocket-và-http-truyền-thống">So sánh WebSocket và HTTP truyền thống<a hidden class="anchor" aria-hidden="true" href="#so-sánh-websocket-và-http-truyền-thống">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Tiêu chí</th>
+          <th>HTTP (Request – Response)</th>
+          <th>WebSocket (Full-duplex)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Kết nối</td>
+          <td>Mỗi request mở &amp; đóng</td>
+          <td>Giữ kết nối liên tục</td>
+      </tr>
+      <tr>
+          <td>Chiều giao tiếp</td>
+          <td>1 chiều (client → server)</td>
+          <td>2 chiều (client ↔ server)</td>
+      </tr>
+      <tr>
+          <td>Độ trễ</td>
+          <td>Cao (mỗi lần phải request)</td>
+          <td>Thấp (truyền ngay lập tức)</td>
+      </tr>
+      <tr>
+          <td>Hiệu quả real-time</td>
+          <td>Không phù hợp</td>
+          <td>Rất phù hợp</td>
+      </tr>
+      <tr>
+          <td>Ứng dụng</td>
+          <td>Web truyền thống, REST API</td>
+          <td>Chat, game online, IoT, dashboard</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="ứng-dụng-thực-tế">Ứng dụng thực tế<a hidden class="anchor" aria-hidden="true" href="#ứng-dụng-thực-tế">#</a></h3>
+<ul>
+<li>
+<p>Ứng dụng chat: Messenger, Slack, Zalo.</p>
+</li>
+<li>
+<p>Game multiplayer online: đồng bộ trạng thái người chơi.</p>
+</li>
+<li>
+<p>Realtime dashboard: hiển thị log hệ thống, chứng khoán, giá crypto.</p>
+</li>
+<li>
+<p>IoT: kết nối thiết bị thông minh, gửi dữ liệu sensor liên tục.</p>
+</li>
+</ul>
+<h3 id="kết-luận">Kết luận<a hidden class="anchor" aria-hidden="true" href="#kết-luận">#</a></h3>
+<p>WebSocket mở ra khả năng truyền dữ liệu 2 chiều, real-time giữa client và server, giúp các ứng dụng hiện đại mượt mà và phản hồi nhanh hơn.
+Khi kết hợp với Node.js, việc xây dựng một WebSocket server cực kỳ đơn giản, chỉ vài dòng code.</p>
+<p>🚀 Nếu bạn đang làm ứng dụng cần real-time, hãy thử WebSocket – nó sẽ thay đổi hoàn toàn cách bạn xây dựng hệ thống.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/javascript/">JavaScript</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/node.js/">Node.js</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/websocket/">WebSocket</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/realtime/">Realtime</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://hungson1002.github.io/Blog-Mang/blog/api-http-don-gian-voi-java/">
+    <span class="title">« Trang trước</span>
+    <br>
+    <span>Tự xây dựng API HTTP siêu nhẹ với Java</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://hungson1002.github.io/Blog-Mang/">Blog Lập Trình Mạng</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

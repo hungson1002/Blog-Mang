@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>JUnit on Blog Lập Trình Mạng</title>
+    <link>https://hungson1002.github.io/Blog-Mang/tags/junit/</link>
+    <description>Recent content in JUnit on Blog Lập Trình Mạng</description>
+    <generator>Hugo -- 0.150.0</generator>
+    <language>vi</language>
+    <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://hungson1002.github.io/Blog-Mang/tags/junit/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kiểm thử ứng dụng mạng bằng JUnit &amp; Testcontainers</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong phát triển phần mềm, viết code chỉ là bước đầu tiên. Quan trọng hơn là &lt;strong&gt;kiểm thử (testing)&lt;/strong&gt; để đảm bảo hệ thống hoạt động đúng và ổn định.&lt;/p&gt;
+&lt;p&gt;Với các ứng dụng mạng (sử dụng &lt;strong&gt;Socket, HTTP API, Database&lt;/strong&gt;), việc kiểm thử phức tạp hơn nhiều so với code thuần túy, vì cần môi trường thực tế: server, database, hoặc thậm chí nhiều service chạy song song.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

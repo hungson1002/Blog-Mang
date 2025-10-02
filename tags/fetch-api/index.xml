@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Fetch API on Blog Lập Trình Mạng</title>
+    <link>https://hungson1002.github.io/Blog-Mang/tags/fetch-api/</link>
+    <description>Recent content in Fetch API on Blog Lập Trình Mạng</description>
+    <generator>Hugo -- 0.150.0</generator>
+    <language>vi</language>
+    <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://hungson1002.github.io/Blog-Mang/tags/fetch-api/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hiểu rõ Fetch API &amp; vấn đề CORS trong JavaScript</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong lập trình web hiện đại, &lt;strong&gt;JavaScript&lt;/strong&gt; đóng vai trò trung tâm trong việc giao tiếp giữa frontend và backend.&lt;br&gt;
+Một trong những công cụ mạnh mẽ nhất để gọi API từ trình duyệt là &lt;strong&gt;Fetch API&lt;/strong&gt;. Nó thay thế &lt;code&gt;XMLHttpRequest&lt;/code&gt; cũ kỹ, mang đến cú pháp gọn gàng hơn dựa trên &lt;strong&gt;Promise&lt;/strong&gt; và hỗ trợ tốt với &lt;strong&gt;async/await&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Tuy nhiên, khi gọi API từ domain khác, bạn thường gặp lỗi khó chịu:&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

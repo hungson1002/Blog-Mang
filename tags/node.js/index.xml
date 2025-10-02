@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Node.js on Blog Lập Trình Mạng</title>
+    <link>https://hungson1002.github.io/Blog-Mang/tags/node.js/</link>
+    <description>Recent content in Node.js on Blog Lập Trình Mạng</description>
+    <generator>Hugo -- 0.150.0</generator>
+    <language>vi</language>
+    <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://hungson1002.github.io/Blog-Mang/tags/node.js/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>WebSocket với Node.js: Giao tiếp real-time đơn giản</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/websocket-nodejs-realtime/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/websocket-nodejs-realtime/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong các ứng dụng hiện đại như &lt;strong&gt;chat online&lt;/strong&gt;, &lt;strong&gt;game multiplayer&lt;/strong&gt;, hay &lt;strong&gt;ứng dụng theo dõi chứng khoán&lt;/strong&gt;, yêu cầu quan trọng là &lt;strong&gt;dữ liệu phải được cập nhật theo thời gian thực (real-time)&lt;/strong&gt;.&lt;br&gt;
+HTTP truyền thống hoạt động theo cơ chế &lt;strong&gt;request – response&lt;/strong&gt;: client gửi yêu cầu, server trả về dữ liệu. Điều này không phù hợp cho các ứng dụng real-time, nơi dữ liệu liên tục thay đổi.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

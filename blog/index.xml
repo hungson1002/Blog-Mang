@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Blog on Blog Lập Trình Mạng</title>
+    <link>https://hungson1002.github.io/Blog-Mang/blog/</link>
+    <description>Recent content in Blog on Blog Lập Trình Mạng</description>
+    <generator>Hugo -- 0.150.0</generator>
+    <language>vi</language>
+    <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://hungson1002.github.io/Blog-Mang/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Bảo mật Web: Ngăn chặn XSS &amp; CSRF với JavaScript</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/bao-mat-xss-csrf/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/bao-mat-xss-csrf/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong thời đại web ngày nay, &lt;strong&gt;bảo mật ứng dụng&lt;/strong&gt; là yếu tố sống còn. Hai trong số các lỗ hổng phổ biến nhất mà lập trình viên hay gặp phải là &lt;strong&gt;XSS (Cross-Site Scripting)&lt;/strong&gt; và &lt;strong&gt;CSRF (Cross-Site Request Forgery)&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Nếu không được ngăn chặn, kẻ tấn công có thể:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Chèn mã độc vào trình duyệt người dùng (XSS).&lt;/li&gt;
+&lt;li&gt;Lợi dụng người dùng đã đăng nhập để thực hiện hành động trái phép (CSRF).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Trong bài viết này, chúng ta sẽ:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Hiểu rõ Fetch API &amp; vấn đề CORS trong JavaScript</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/fetch-api-cors-javascript/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong lập trình web hiện đại, &lt;strong&gt;JavaScript&lt;/strong&gt; đóng vai trò trung tâm trong việc giao tiếp giữa frontend và backend.&lt;br&gt;
+Một trong những công cụ mạnh mẽ nhất để gọi API từ trình duyệt là &lt;strong&gt;Fetch API&lt;/strong&gt;. Nó thay thế &lt;code&gt;XMLHttpRequest&lt;/code&gt; cũ kỹ, mang đến cú pháp gọn gàng hơn dựa trên &lt;strong&gt;Promise&lt;/strong&gt; và hỗ trợ tốt với &lt;strong&gt;async/await&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Tuy nhiên, khi gọi API từ domain khác, bạn thường gặp lỗi khó chịu:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Java NIO: Xử lý kết nối mạng Non-Blocking</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/java-nio-non-blocking/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong các ứng dụng mạng truyền thống viết bằng &lt;strong&gt;Java I/O&lt;/strong&gt;, mỗi kết nối từ client sẽ được gắn với một &lt;strong&gt;thread riêng&lt;/strong&gt;. Cách tiếp cận này đơn giản nhưng có nhược điểm: khi số lượng kết nối tăng lên hàng nghìn, ứng dụng sẽ tiêu tốn rất nhiều bộ nhớ và CPU để quản lý thread.&lt;/p&gt;
+&lt;p&gt;Để giải quyết vấn đề này, từ &lt;strong&gt;Java 1.4&lt;/strong&gt;, gói &lt;strong&gt;Java NIO (New I/O)&lt;/strong&gt; được giới thiệu. NIO cho phép xử lý &lt;strong&gt;non-blocking I/O&lt;/strong&gt;, nghĩa là một thread có thể quản lý nhiều kết nối cùng lúc, giúp ứng dụng &lt;strong&gt;mở rộng (scalable)&lt;/strong&gt; hơn.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>JDBC cơ bản: Kết nối Java với cơ sở dữ liệu</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong lập trình ứng dụng, một nhu cầu rất phổ biến là &lt;strong&gt;làm việc với cơ sở dữ liệu (CSDL)&lt;/strong&gt;. Dữ liệu người dùng, sản phẩm, đơn hàng… đều cần được lưu trữ và truy xuất hiệu quả.&lt;/p&gt;
+&lt;p&gt;Trong Java, để kết nối và làm việc với CSDL, ta dùng &lt;strong&gt;JDBC (Java Database Connectivity)&lt;/strong&gt; – một API chuẩn, có trong JDK từ những phiên bản đầu tiên. JDBC cho phép Java giao tiếp với hầu hết các hệ quản trị CSDL (MySQL, PostgreSQL, Oracle, SQL Server…) thông qua &lt;strong&gt;Driver&lt;/strong&gt; tương ứng.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Kiểm thử ứng dụng mạng bằng JUnit &amp; Testcontainers</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong phát triển phần mềm, viết code chỉ là bước đầu tiên. Quan trọng hơn là &lt;strong&gt;kiểm thử (testing)&lt;/strong&gt; để đảm bảo hệ thống hoạt động đúng và ổn định.&lt;/p&gt;
+&lt;p&gt;Với các ứng dụng mạng (sử dụng &lt;strong&gt;Socket, HTTP API, Database&lt;/strong&gt;), việc kiểm thử phức tạp hơn nhiều so với code thuần túy, vì cần môi trường thực tế: server, database, hoặc thậm chí nhiều service chạy song song.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>REST vs GraphQL: So sánh và cách lựa chọn</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/rest-vs-graphql/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/rest-vs-graphql/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong lập trình web và mobile, &lt;strong&gt;API&lt;/strong&gt; là cầu nối giữa client và server. Trong nhiều năm, &lt;strong&gt;REST (Representational State Transfer)&lt;/strong&gt; đã trở thành chuẩn mực. Tuy nhiên, khi ứng dụng ngày càng phức tạp, REST dần bộc lộ hạn chế.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;GraphQL&lt;/strong&gt; ra đời (2015, bởi Facebook) như một giải pháp thay thế REST, cho phép client &lt;strong&gt;yêu cầu chính xác dữ liệu cần thiết&lt;/strong&gt;. Ngày nay, nhiều công ty lớn như GitHub, Shopify, Twitter đều cung cấp API GraphQL.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>TCP vs UDP trong Java: Nên chọn giao thức nào?</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/tcp-vs-udp-trong-java/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/tcp-vs-udp-trong-java/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong lập trình mạng, một trong những câu hỏi cơ bản nhưng rất quan trọng là: &lt;strong&gt;nên dùng TCP hay UDP để truyền dữ liệu?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Nếu bạn đang xây dựng một ứng dụng chat, một dịch vụ web, hay một trò chơi trực tuyến, việc lựa chọn đúng giao thức có thể ảnh hưởng lớn đến trải nghiệm người dùng. TCP và UDP đều nằm ở &lt;strong&gt;lớp vận chuyển (Transport Layer)&lt;/strong&gt; của mô hình OSI, nhưng bản chất hoạt động của chúng hoàn toàn khác nhau.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Tự xây dựng API HTTP siêu nhẹ với Java</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/api-http-don-gian-voi-java/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/api-http-don-gian-voi-java/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong thế giới lập trình hiện đại, &lt;strong&gt;API HTTP&lt;/strong&gt; đóng vai trò trung tâm: từ ứng dụng web, mobile cho đến hệ thống phân tán, mọi thứ đều giao tiếp thông qua HTTP. Thông thường, lập trình viên sẽ sử dụng các framework mạnh mẽ như &lt;strong&gt;Spring Boot&lt;/strong&gt;, &lt;strong&gt;Quarkus&lt;/strong&gt; hay &lt;strong&gt;Micronaut&lt;/strong&gt; để xây dựng API.&lt;/p&gt;
+&lt;p&gt;Tuy nhiên, đôi khi bạn chỉ cần một API nhỏ, nhanh gọn, để phục vụ demo, học tập hoặc viết thử nghiệm. Lúc này, sử dụng các framework lớn có thể là “quá sức”. Thay vào đó, chúng ta có thể tự viết một API siêu nhẹ bằng &lt;strong&gt;Java thuần&lt;/strong&gt; hoặc dùng thư viện tối giản như &lt;strong&gt;SparkJava&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>WebSocket với Node.js: Giao tiếp real-time đơn giản</title>
+      <link>https://hungson1002.github.io/Blog-Mang/blog/websocket-nodejs-realtime/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://hungson1002.github.io/Blog-Mang/blog/websocket-nodejs-realtime/</guid>
+      <description>&lt;h2 id=&#34;giới-thiệu&#34;&gt;Giới thiệu&lt;/h2&gt;
+&lt;p&gt;Trong các ứng dụng hiện đại như &lt;strong&gt;chat online&lt;/strong&gt;, &lt;strong&gt;game multiplayer&lt;/strong&gt;, hay &lt;strong&gt;ứng dụng theo dõi chứng khoán&lt;/strong&gt;, yêu cầu quan trọng là &lt;strong&gt;dữ liệu phải được cập nhật theo thời gian thực (real-time)&lt;/strong&gt;.&lt;br&gt;
+HTTP truyền thống hoạt động theo cơ chế &lt;strong&gt;request – response&lt;/strong&gt;: client gửi yêu cầu, server trả về dữ liệu. Điều này không phù hợp cho các ứng dụng real-time, nơi dữ liệu liên tục thay đổi.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

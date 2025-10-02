@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="vi" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Kiểm thử ứng dụng mạng bằng JUnit &amp; Testcontainers | Blog Lập Trình Mạng</title>
+<meta name="keywords" content="Java, Networking, JUnit, Testcontainers, Testing">
+<meta name="description" content="Giới thiệu
+Trong phát triển phần mềm, viết code chỉ là bước đầu tiên. Quan trọng hơn là kiểm thử (testing) để đảm bảo hệ thống hoạt động đúng và ổn định.
+Với các ứng dụng mạng (sử dụng Socket, HTTP API, Database), việc kiểm thử phức tạp hơn nhiều so với code thuần túy, vì cần môi trường thực tế: server, database, hoặc thậm chí nhiều service chạy song song.">
+<meta name="author" content="">
+<link rel="canonical" href="https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/">
+<link crossorigin="anonymous" href="/Blog-Mang/assets/css/stylesheet.2211ca3164be7830024f6aad2b3a2e520843a64f8f048445c3401c1249aa051d.css" integrity="sha256-IhHKMWS&#43;eDACT2qtKzouUghDpk&#43;PBIRFw0AcEkmqBR0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://hungson1002.github.io/Blog-Mang/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://hungson1002.github.io/Blog-Mang/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://hungson1002.github.io/Blog-Mang/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://hungson1002.github.io/Blog-Mang/apple-touch-icon.png">
+<link rel="mask-icon" href="https://hungson1002.github.io/Blog-Mang/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="vi" href="https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="/Blog-Mang/css/custom.min.92463d3042cb523b4e43887053e2563d6060fe3a2f96bd3d0e2879a2337831c2.css">
+
+<script defer>
+
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('table').forEach(tbl => {
+		const rows = Array.from(tbl.rows);
+		if (!rows.length) return;
+		
+		const lastCells = rows.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+		if (!lastCells.length) return;
+		const allEmpty = lastCells.every(c => {
+			
+			const textEmpty = c.textContent.trim() === '';
+			const hasContentEl = c.querySelector('img, code, pre, a, strong, em, span:not(:empty)');
+			return textEmpty && !hasContentEl;
+		});
+		if (allEmpty) {
+			lastCells.forEach(c => c.remove());
+			
+			const rows2 = Array.from(tbl.rows);
+			if (rows2.length) {
+				const lastCells2 = rows2.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+				const allEmpty2 = lastCells2.every(c => c.textContent.trim() === '' && !c.querySelector('img,code,pre,a,strong,em,span:not(:empty)'));
+				if (allEmpty2) lastCells2.forEach(c => c.remove());
+			}
+		}
+	});
+	
+	const hdr = document.querySelector('.header');
+	if (hdr) {
+		let lastY = window.scrollY;
+		const onScroll = () => {
+			const y = window.scrollY;
+			
+			if (y > 10) hdr.classList.add('is-scrolled'); else hdr.classList.remove('is-scrolled');
+			
+			if (y > lastY && y > 64) {
+				
+				hdr.classList.add('is-hidden');
+			} else {
+				
+				hdr.classList.remove('is-hidden');
+			}
+			lastY = y;
+		};
+		
+		const setOffset = () => {
+			const h = hdr.getBoundingClientRect().height; 
+			document.documentElement.style.setProperty('--dynamic-header-space', (h + 12) + 'px');
+		};
+		setOffset();
+		window.addEventListener('resize', setOffset, { passive: true });
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+});
+</script>
+<meta property="og:url" content="https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/">
+  <meta property="og:site_name" content="Blog Lập Trình Mạng">
+  <meta property="og:title" content="Kiểm thử ứng dụng mạng bằng JUnit & Testcontainers">
+  <meta property="og:description" content="Giới thiệu Trong phát triển phần mềm, viết code chỉ là bước đầu tiên. Quan trọng hơn là kiểm thử (testing) để đảm bảo hệ thống hoạt động đúng và ổn định.
+Với các ứng dụng mạng (sử dụng Socket, HTTP API, Database), việc kiểm thử phức tạp hơn nhiều so với code thuần túy, vì cần môi trường thực tế: server, database, hoặc thậm chí nhiều service chạy song song.">
+  <meta property="og:locale" content="vi">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-09-14T00:00:00+00:00">
+    <meta property="article:tag" content="Java">
+    <meta property="article:tag" content="Networking">
+    <meta property="article:tag" content="JUnit">
+    <meta property="article:tag" content="Testcontainers">
+    <meta property="article:tag" content="Testing">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kiểm thử ứng dụng mạng bằng JUnit &amp; Testcontainers">
+<meta name="twitter:description" content="Giới thiệu
+Trong phát triển phần mềm, viết code chỉ là bước đầu tiên. Quan trọng hơn là kiểm thử (testing) để đảm bảo hệ thống hoạt động đúng và ổn định.
+Với các ứng dụng mạng (sử dụng Socket, HTTP API, Database), việc kiểm thử phức tạp hơn nhiều so với code thuần túy, vì cần môi trường thực tế: server, database, hoặc thậm chí nhiều service chạy song song.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Blog",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Kiểm thử ứng dụng mạng bằng JUnit \u0026 Testcontainers",
+      "item": "https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Kiểm thử ứng dụng mạng bằng JUnit \u0026 Testcontainers",
+  "name": "Kiểm thử ứng dụng mạng bằng JUnit \u0026 Testcontainers",
+  "description": "Giới thiệu Trong phát triển phần mềm, viết code chỉ là bước đầu tiên. Quan trọng hơn là kiểm thử (testing) để đảm bảo hệ thống hoạt động đúng và ổn định.\nVới các ứng dụng mạng (sử dụng Socket, HTTP API, Database), việc kiểm thử phức tạp hơn nhiều so với code thuần túy, vì cần môi trường thực tế: server, database, hoặc thậm chí nhiều service chạy song song.\n",
+  "keywords": [
+    "Java", "Networking", "JUnit", "Testcontainers", "Testing"
+  ],
+  "articleBody": "Giới thiệu Trong phát triển phần mềm, viết code chỉ là bước đầu tiên. Quan trọng hơn là kiểm thử (testing) để đảm bảo hệ thống hoạt động đúng và ổn định.\nVới các ứng dụng mạng (sử dụng Socket, HTTP API, Database), việc kiểm thử phức tạp hơn nhiều so với code thuần túy, vì cần môi trường thực tế: server, database, hoặc thậm chí nhiều service chạy song song.\n👉 Đây là lúc JUnit và Testcontainers phát huy sức mạnh:\nJUnit: framework kiểm thử phổ biến nhất trong Java. Testcontainers: thư viện cho phép chạy môi trường thực tế (như MySQL, Redis, Kafka, API mock…) bên trong Docker container ngay trong test. Trong bài viết này, ta sẽ tìm hiểu:\nTại sao kiểm thử ứng dụng mạng khó khăn. Giải pháp với JUnit và Testcontainers. Ví dụ kiểm thử API HTTP bằng JUnit. Ví dụ kiểm thử Database với Testcontainers. So sánh cách kiểm thử truyền thống và Testcontainers. Kết luận và ứng dụng thực tế. Khó khăn khi kiểm thử ứng dụng mạng Phụ thuộc môi trường: cần database, server hoặc service bên ngoài. Khó tái tạo lỗi: mạng có độ trễ, mất gói, hoặc lỗi kết nối không ổn định. Cấu hình phức tạp: phải cài đặt nhiều service (MySQL, Redis, Kafka…) trước khi chạy test. 👉 Nếu chỉ chạy test bằng “mock object” thì không đảm bảo, vì mock không phản ánh môi trường thật.\nGiải pháp: JUnit + Testcontainers JUnit: viết test case rõ ràng, chạy tự động. Testcontainers: tạo Docker container tạm thời cho test (ví dụ MySQL, PostgreSQL, Redis, Kafka…). Điểm mạnh:\nTest gần với môi trường thật nhất. Tự động tạo \u0026 xóa container sau khi test xong. Không cần cài database thủ công trên máy dev. Ví dụ 1: Kiểm thử API HTTP với JUnit Giả sử ta có API đơn giản viết bằng SparkJava:\nimport static spark.Spark.*; public class SimpleApi { public static void main(String[] args) { get(\"/hello\", (req, res) -\u003e \"Hello World\"); } } Viết test bằng JUnit 5 + HttpClient:\nimport org.junit.jupiter.api.Test; import static org.junit.jupiter.api.Assertions.*; import java.net.http.*; public class ApiTest { @Test void testHelloApi() throws Exception { HttpClient client = HttpClient.newHttpClient(); HttpRequest req = HttpRequest.newBuilder() .uri(new java.net.URI(\"http://localhost:4567/hello\")) .build(); HttpResponse\u003cString\u003e res = client.send(req, HttpResponse.BodyHandlers.ofString()); assertEquals(200, res.statusCode()); assertEquals(\"Hello World\", res.body()); } } Ví dụ 2: Kiểm thử Database với Testcontainers Thêm dependency (Maven):\norg.testcontainers mysql 1.19.0 test Test code:\nimport org.junit.jupiter.api.Test; import org.testcontainers.containers.MySQLContainer; import java.sql.*; import static org.junit.jupiter.api.Assertions.*; public class DatabaseTest { @Test void testInsertUser() throws Exception { try (MySQLContainer\u003c?\u003e mysql = new MySQLContainer\u003c\u003e(\"mysql:8.0\")) { mysql.start(); Connection conn = DriverManager.getConnection( mysql.getJdbcUrl(), mysql.getUsername(), mysql.getPassword()); Statement stmt = conn.createStatement(); stmt.execute(\"CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100))\"); stmt.execute(\"INSERT INTO users (name) VALUES ('Alice')\"); ResultSet rs = stmt.executeQuery(\"SELECT COUNT(*) FROM users\"); rs.next(); int count = rs.getInt(1); assertEquals(1, count); mysql.stop(); } } } 👉 Ở đây, MySQL sẽ được chạy trong container Docker, sau khi test xong nó sẽ tự động bị xóa.\nSo sánh cách kiểm thử Tiêu chí Kiểm thử truyền thống (Mock/Manual DB) JUnit + Testcontainers Mức độ thực tế Thấp (chỉ giả lập) Cao (dùng container thật) Độ tin cậy Thấp Cao Cấu hình môi trường Khó, tốn công Tự động, chạy container Tái tạo lỗi Khó Dễ (container luôn reset như mới) Tích hợp CI/CD Phức tạp Dễ dàng Ứng dụng thực tế Viết test cho ứng dụng Spring Boot kết nối MySQL/PostgreSQL.\nTest Kafka/Redis/Elasticsearch mà không cần cài đặt thật.\nDùng trong CI/CD pipeline để đảm bảo mỗi lần build đều chạy test trên môi trường sạch.\nKết luận Kết hợp JUnit và Testcontainers giúp kiểm thử ứng dụng mạng dễ dàng hơn nhiều:\nKhông còn lo lắng về cài đặt môi trường thủ công.\nTest chính xác hơn, gần với môi trường production.\nThích hợp để tích hợp vào pipeline CI/CD.\n🚀 Với kiến thức này, bạn đã có thể tự tin viết test không chỉ cho logic ứng dụng, mà còn cho toàn bộ hệ thống mạng và database của mình.\n",
+  "wordCount" : "670",
+  "inLanguage": "vi",
+  "datePublished": "2025-09-14T00:00:00Z",
+  "dateModified": "2025-09-14T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://hungson1002.github.io/Blog-Mang/blog/kiem-thu-junit-testcontainers/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Blog Lập Trình Mạng",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://hungson1002.github.io/Blog-Mang/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://hungson1002.github.io/Blog-Mang/" accesskey="h" title="Blog Lập Trình Mạng (Alt + H)">Blog Lập Trình Mạng</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/blog/" title="Blog">
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://hungson1002.github.io/Blog-Mang/about/" title="Profile">
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header><main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://hungson1002.github.io/Blog-Mang/">Trang chủ</a>&nbsp;»&nbsp;<a href="https://hungson1002.github.io/Blog-Mang/blog/">Blog</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Kiểm thử ứng dụng mạng bằng JUnit &amp; Testcontainers
+    </h1>
+    <div class="post-meta"><span title='2025-09-14 00:00:00 +0000 UTC'>tháng 9 14, 2025</span>&nbsp;·&nbsp;4 phút
+
+</div>
+  </header> 
+  <div class="post-content"><h2 id="giới-thiệu">Giới thiệu<a hidden class="anchor" aria-hidden="true" href="#giới-thiệu">#</a></h2>
+<p>Trong phát triển phần mềm, viết code chỉ là bước đầu tiên. Quan trọng hơn là <strong>kiểm thử (testing)</strong> để đảm bảo hệ thống hoạt động đúng và ổn định.</p>
+<p>Với các ứng dụng mạng (sử dụng <strong>Socket, HTTP API, Database</strong>), việc kiểm thử phức tạp hơn nhiều so với code thuần túy, vì cần môi trường thực tế: server, database, hoặc thậm chí nhiều service chạy song song.</p>
+<p>👉 Đây là lúc <strong>JUnit</strong> và <strong>Testcontainers</strong> phát huy sức mạnh:</p>
+<ul>
+<li><strong>JUnit</strong>: framework kiểm thử phổ biến nhất trong Java.</li>
+<li><strong>Testcontainers</strong>: thư viện cho phép chạy môi trường thực tế (như MySQL, Redis, Kafka, API mock…) bên trong <strong>Docker container</strong> ngay trong test.</li>
+</ul>
+<p>Trong bài viết này, ta sẽ tìm hiểu:</p>
+<ol>
+<li>Tại sao kiểm thử ứng dụng mạng khó khăn.</li>
+<li>Giải pháp với JUnit và Testcontainers.</li>
+<li>Ví dụ kiểm thử API HTTP bằng JUnit.</li>
+<li>Ví dụ kiểm thử Database với Testcontainers.</li>
+<li>So sánh cách kiểm thử truyền thống và Testcontainers.</li>
+<li>Kết luận và ứng dụng thực tế.</li>
+</ol>
+<hr>
+<h2 id="khó-khăn-khi-kiểm-thử-ứng-dụng-mạng">Khó khăn khi kiểm thử ứng dụng mạng<a hidden class="anchor" aria-hidden="true" href="#khó-khăn-khi-kiểm-thử-ứng-dụng-mạng">#</a></h2>
+<ul>
+<li><strong>Phụ thuộc môi trường</strong>: cần database, server hoặc service bên ngoài.</li>
+<li><strong>Khó tái tạo lỗi</strong>: mạng có độ trễ, mất gói, hoặc lỗi kết nối không ổn định.</li>
+<li><strong>Cấu hình phức tạp</strong>: phải cài đặt nhiều service (MySQL, Redis, Kafka&hellip;) trước khi chạy test.</li>
+</ul>
+<p>👉 Nếu chỉ chạy test bằng “mock object” thì không đảm bảo, vì mock không phản ánh môi trường thật.</p>
+<hr>
+<h2 id="giải-pháp-junit--testcontainers">Giải pháp: JUnit + Testcontainers<a hidden class="anchor" aria-hidden="true" href="#giải-pháp-junit--testcontainers">#</a></h2>
+<ul>
+<li><strong>JUnit</strong>: viết test case rõ ràng, chạy tự động.</li>
+<li><strong>Testcontainers</strong>: tạo <strong>Docker container tạm thời</strong> cho test (ví dụ MySQL, PostgreSQL, Redis, Kafka&hellip;).</li>
+</ul>
+<p>Điểm mạnh:</p>
+<ul>
+<li>Test <strong>gần với môi trường thật nhất</strong>.</li>
+<li>Tự động tạo &amp; xóa container sau khi test xong.</li>
+<li>Không cần cài database thủ công trên máy dev.</li>
+</ul>
+<hr>
+<h2 id="ví-dụ-1-kiểm-thử-api-http-với-junit">Ví dụ 1: Kiểm thử API HTTP với JUnit<a hidden class="anchor" aria-hidden="true" href="#ví-dụ-1-kiểm-thử-api-http-với-junit">#</a></h2>
+<p>Giả sử ta có API đơn giản viết bằng SparkJava:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import static</span> spark.Spark.*;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SimpleApi</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) {
+</span></span><span style="display:flex;"><span>        get(<span style="color:#e6db74">&#34;/hello&#34;</span>, (req, res) <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Hello World&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>Viết test bằng JUnit 5 + HttpClient:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> org.junit.jupiter.api.Test;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> org.junit.jupiter.api.Assertions.*;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.net.http.*;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ApiTest</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Test</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testHelloApi</span>() <span style="color:#66d9ef">throws</span> Exception {
+</span></span><span style="display:flex;"><span>        HttpClient client <span style="color:#f92672">=</span> HttpClient.<span style="color:#a6e22e">newHttpClient</span>();
+</span></span><span style="display:flex;"><span>        HttpRequest req <span style="color:#f92672">=</span> HttpRequest.<span style="color:#a6e22e">newBuilder</span>()
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">uri</span>(<span style="color:#66d9ef">new</span> java.<span style="color:#a6e22e">net</span>.<span style="color:#a6e22e">URI</span>(<span style="color:#e6db74">&#34;http://localhost:4567/hello&#34;</span>))
+</span></span><span style="display:flex;"><span>                .<span style="color:#a6e22e">build</span>();
+</span></span><span style="display:flex;"><span>        HttpResponse<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> res <span style="color:#f92672">=</span> client.<span style="color:#a6e22e">send</span>(req, HttpResponse.<span style="color:#a6e22e">BodyHandlers</span>.<span style="color:#a6e22e">ofString</span>());
+</span></span><span style="display:flex;"><span>        assertEquals(200, res.<span style="color:#a6e22e">statusCode</span>());
+</span></span><span style="display:flex;"><span>        assertEquals(<span style="color:#e6db74">&#34;Hello World&#34;</span>, res.<span style="color:#a6e22e">body</span>());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>Ví dụ 2: Kiểm thử Database với Testcontainers</strong>
+Thêm dependency (Maven):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;dependency&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;groupId&gt;</span>org.testcontainers<span style="color:#f92672">&lt;/groupId&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;artifactId&gt;</span>mysql<span style="color:#f92672">&lt;/artifactId&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;version&gt;</span>1.19.0<span style="color:#f92672">&lt;/version&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;scope&gt;</span>test<span style="color:#f92672">&lt;/scope&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><p>Test code:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> org.junit.jupiter.api.Test;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> org.testcontainers.containers.MySQLContainer;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.sql.*;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import static</span> org.junit.jupiter.api.Assertions.*;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">DatabaseTest</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Test</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">testInsertUser</span>() <span style="color:#66d9ef">throws</span> Exception {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> (MySQLContainer<span style="color:#f92672">&lt;?&gt;</span> mysql <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MySQLContainer<span style="color:#f92672">&lt;&gt;</span>(<span style="color:#e6db74">&#34;mysql:8.0&#34;</span>)) {
+</span></span><span style="display:flex;"><span>            mysql.<span style="color:#a6e22e">start</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            Connection conn <span style="color:#f92672">=</span> DriverManager.<span style="color:#a6e22e">getConnection</span>(
+</span></span><span style="display:flex;"><span>                    mysql.<span style="color:#a6e22e">getJdbcUrl</span>(), mysql.<span style="color:#a6e22e">getUsername</span>(), mysql.<span style="color:#a6e22e">getPassword</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            Statement stmt <span style="color:#f92672">=</span> conn.<span style="color:#a6e22e">createStatement</span>();
+</span></span><span style="display:flex;"><span>            stmt.<span style="color:#a6e22e">execute</span>(<span style="color:#e6db74">&#34;CREATE TABLE users (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100))&#34;</span>);
+</span></span><span style="display:flex;"><span>            stmt.<span style="color:#a6e22e">execute</span>(<span style="color:#e6db74">&#34;INSERT INTO users (name) VALUES (&#39;Alice&#39;)&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            ResultSet rs <span style="color:#f92672">=</span> stmt.<span style="color:#a6e22e">executeQuery</span>(<span style="color:#e6db74">&#34;SELECT COUNT(*) FROM users&#34;</span>);
+</span></span><span style="display:flex;"><span>            rs.<span style="color:#a6e22e">next</span>();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> rs.<span style="color:#a6e22e">getInt</span>(1);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            assertEquals(1, count);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            mysql.<span style="color:#a6e22e">stop</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>👉 Ở đây, MySQL sẽ được chạy trong container Docker, sau khi test xong nó sẽ tự động bị xóa.</p>
+<h3 id="so-sánh-cách-kiểm-thử">So sánh cách kiểm thử<a hidden class="anchor" aria-hidden="true" href="#so-sánh-cách-kiểm-thử">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Tiêu chí</th>
+          <th>Kiểm thử truyền thống (Mock/Manual DB)</th>
+          <th>JUnit + Testcontainers</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Mức độ thực tế</td>
+          <td>Thấp (chỉ giả lập)</td>
+          <td>Cao (dùng container thật)</td>
+      </tr>
+      <tr>
+          <td>Độ tin cậy</td>
+          <td>Thấp</td>
+          <td>Cao</td>
+      </tr>
+      <tr>
+          <td>Cấu hình môi trường</td>
+          <td>Khó, tốn công</td>
+          <td>Tự động, chạy container</td>
+      </tr>
+      <tr>
+          <td>Tái tạo lỗi</td>
+          <td>Khó</td>
+          <td>Dễ (container luôn reset như mới)</td>
+      </tr>
+      <tr>
+          <td>Tích hợp CI/CD</td>
+          <td>Phức tạp</td>
+          <td>Dễ dàng</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="ứng-dụng-thực-tế">Ứng dụng thực tế<a hidden class="anchor" aria-hidden="true" href="#ứng-dụng-thực-tế">#</a></h3>
+<ul>
+<li>
+<p>Viết test cho ứng dụng Spring Boot kết nối MySQL/PostgreSQL.</p>
+</li>
+<li>
+<p>Test Kafka/Redis/Elasticsearch mà không cần cài đặt thật.</p>
+</li>
+<li>
+<p>Dùng trong CI/CD pipeline để đảm bảo mỗi lần build đều chạy test trên môi trường sạch.</p>
+</li>
+</ul>
+<h3 id="kết-luận">Kết luận<a hidden class="anchor" aria-hidden="true" href="#kết-luận">#</a></h3>
+<p>Kết hợp JUnit và Testcontainers giúp kiểm thử ứng dụng mạng dễ dàng hơn nhiều:</p>
+<ul>
+<li>
+<p>Không còn lo lắng về cài đặt môi trường thủ công.</p>
+</li>
+<li>
+<p>Test chính xác hơn, gần với môi trường production.</p>
+</li>
+<li>
+<p>Thích hợp để tích hợp vào pipeline CI/CD.</p>
+</li>
+</ul>
+<p>🚀 Với kiến thức này, bạn đã có thể tự tin viết test không chỉ cho logic ứng dụng, mà còn cho toàn bộ hệ thống mạng và database của mình.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/java/">Java</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/networking/">Networking</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/junit/">JUnit</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/testcontainers/">Testcontainers</a></li>
+      <li><a href="https://hungson1002.github.io/Blog-Mang/tags/testing/">Testing</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://hungson1002.github.io/Blog-Mang/blog/jdbc-ket-noi-java-voi-csdl/">
+    <span class="title">« Trang trước</span>
+    <br>
+    <span>JDBC cơ bản: Kết nối Java với cơ sở dữ liệu</span>
+  </a>
+  <a class="next" href="https://hungson1002.github.io/Blog-Mang/blog/rest-vs-graphql/">
+    <span class="title">Trang tiếp theo »</span>
+    <br>
+    <span>REST vs GraphQL: So sánh và cách lựa chọn</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://hungson1002.github.io/Blog-Mang/">Blog Lập Trình Mạng</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
