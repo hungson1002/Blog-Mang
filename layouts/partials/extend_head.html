@@ -1,0 +1,59 @@
+{{ $styles := resources.Get "css/custom.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $styles.RelPermalink }}">
+
+<script defer>
+// Auto-remove trailing completely empty Markdown table columns (causing extra blank bordered column)
+document.addEventListener('DOMContentLoaded', () => {
+	document.querySelectorAll('table').forEach(tbl => {
+		const rows = Array.from(tbl.rows);
+		if (!rows.length) return;
+		// Determine if every row has a last cell & it's empty (text + no meaningful child nodes)
+		const lastCells = rows.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+		if (!lastCells.length) return;
+		const allEmpty = lastCells.every(c => {
+			// treat a cell as empty if text is whitespace & it has no non-whitespace inline elements with content
+			const textEmpty = c.textContent.trim() === '';
+			const hasContentEl = c.querySelector('img, code, pre, a, strong, em, span:not(:empty)');
+			return textEmpty && !hasContentEl;
+		});
+		if (allEmpty) {
+			lastCells.forEach(c => c.remove());
+			// If after removal there is another empty trailing column (double pipes), run once more
+			const rows2 = Array.from(tbl.rows);
+			if (rows2.length) {
+				const lastCells2 = rows2.map(r => r.cells[r.cells.length - 1]).filter(Boolean);
+				const allEmpty2 = lastCells2.every(c => c.textContent.trim() === '' && !c.querySelector('img,code,pre,a,strong,em,span:not(:empty)'));
+				if (allEmpty2) lastCells2.forEach(c => c.remove());
+			}
+		}
+	});
+	// Header auto-hide / show on scroll direction
+	const hdr = document.querySelector('.header');
+	if (hdr) {
+		let lastY = window.scrollY;
+		const onScroll = () => {
+			const y = window.scrollY;
+			// add scrolled shadow state
+			if (y > 10) hdr.classList.add('is-scrolled'); else hdr.classList.remove('is-scrolled');
+			// determine direction
+			if (y > lastY && y > 64) {
+				// scrolling down hide
+				hdr.classList.add('is-hidden');
+			} else {
+				// scrolling up show
+				hdr.classList.remove('is-hidden');
+			}
+			lastY = y;
+		};
+		// Set dynamic padding for main so top content not overlapped
+		const setOffset = () => {
+			const h = hdr.getBoundingClientRect().height; // current header height
+			document.documentElement.style.setProperty('--dynamic-header-space', (h + 12) + 'px');
+		};
+		setOffset();
+		window.addEventListener('resize', setOffset, { passive: true });
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+	}
+});
+</script>

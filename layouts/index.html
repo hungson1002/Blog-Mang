@@ -1,0 +1,35 @@
+{{ define "main" }}
+<article class="first-entry home-info">
+  <header class="entry-header">
+    <h1>Khám phá thế giới lập trình mạng cùng Java &amp; JavaScript</h1>
+  </header>
+  <div class="entry-content">
+    <div class="hero-banner">
+      <div class="hero-content">
+        <h1 class="hero-title">Chào mừng đến với</h1>
+        <h2 class="hero-subtitle">Blog Lập Trình Mạng</h2>
+        <p class="hero-description">Nơi tổng hợp một số kiến thức cơ bản về lập trình mạng với Java & JavaScript</p>
+      </div>
+      <div class="hero-decoration">
+        <div class="floating-element element-1">☕</div>
+        <div class="floating-element element-2">⚡</div>
+        <div class="floating-element element-3">🌐</div>
+        <div class="floating-element element-4">💻</div>
+      </div>
+    </div>
+  </div>
+  <footer class="entry-footer">
+    <div class="social-icons"></div>
+  </footer>
+</article>
+
+  <section class="home-latest">
+    <h2 class="section-title">Bài mới</h2>
+    <div class="post-grid post-grid--home">
+      {{ range first 9 ( where .Site.RegularPages "Section" "blog") }}
+        {{ partial "post-card.html" . }}
+      {{ end }}
+    </div>
+    <div class="more-link"><a href="/blog/">Xem toàn bộ →</a></div>
+  </section>
+{{ end }}

@@ -1,0 +1,18 @@
+{{/* Reusable post card: expects . to be a Page */}}
+<article class="post-card">
+  <header class="post-card__header">
+    <h3 class="post-card__title"><a href="{{ .RelPermalink }}" class="post-card__title-link">{{ .Title }}</a></h3>
+    {{ with .Params.tags }}
+    <div class="post-card__tags">
+      {{ range first 3 . }}<a class="tag" href="/tags/{{ . | urlize }}/" aria-label="Tag {{ . }}">{{ . }}</a>{{ end }}
+    </div>
+    {{ end }}
+  </header>
+  <a class="post-card__excerpt-link" href="{{ .RelPermalink }}" aria-label="{{ .Title }}">
+    <p class="post-card__excerpt">{{ with .Summary }}{{ . | plainify | truncate 150 }}{{ end }}</p>
+  </a>
+  <footer class="post-card__meta">
+    <span>{{ .Date.Format "2006-01-02" }}</span>
+    <span>· {{ .ReadingTime }} phút</span>
+  </footer>
+</article>

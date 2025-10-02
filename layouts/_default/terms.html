@@ -1,0 +1,40 @@
+{{ define "main" }}
+<section class="tags-page">
+  <header class="tags-header">
+    <h1>Tất cả Tags</h1>
+    <p class="tags-desc">Khám phá nội dung theo chủ đề ({{ len .Site.Taxonomies.tags }} tags)</p>
+  </header>
+
+  <div class="tags-cloud">
+    {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+    <a href="/tags/{{ $name | urlize }}/" class="tag-cloud-item">
+      <span class="tag-cloud-name">{{ $name }}</span>
+      <span class="tag-cloud-count">{{ len $taxonomy }}</span>
+    </a>
+    {{ end }}
+  </div>
+
+  <section class="tags-list">
+    <h2>Chi tiết theo tag</h2>
+    {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+    <div class="tag-section">
+      <h3 class="tag-section-title">
+        <a href="/tags/{{ $name | urlize }}/">#{{ $name }}</a>
+        <span class="tag-section-count">({{ len $taxonomy }} bài)</span>
+      </h3>
+      <div class="tag-posts">
+        {{ range first 3 $taxonomy.Pages }}
+        <a href="{{ .RelPermalink }}" class="tag-post-item">
+          <span class="tag-post-title">{{ .Title }}</span>
+          <span class="tag-post-date">{{ .Date.Format "2006-01-02" }}</span>
+        </a>
+        {{ end }}
+        {{ if gt (len $taxonomy.Pages) 3 }}
+        <a href="/tags/{{ $name | urlize }}/" class="tag-view-all">Xem tất cả →</a>
+        {{ end }}
+      </div>
+    </div>
+    {{ end }}
+  </section>
+</section>
+{{ end }}

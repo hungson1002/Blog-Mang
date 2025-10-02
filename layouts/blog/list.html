@@ -1,0 +1,23 @@
+{{ define "main" }}
+<section class="blog-archive">
+  <header class="archive-head">
+    <h1>Tất cả bài viết</h1>
+    <p class="archive-desc">Kho kiến thức lập trình mạng ({{ len ( where .Site.RegularPages "Section" "blog") }} bài)</p>
+  </header>
+
+  {{ $paginator := .Paginate ( where .Site.RegularPages "Section" "blog") }}
+  <div class="post-list-full">
+    {{ range $paginator.Pages }}
+      {{ partial "post-card.html" . }}
+    {{ end }}
+  </div>
+
+  {{ if gt $paginator.TotalPages 1 }}
+  <nav class="pagination" aria-label="Pagination">
+    {{ if $paginator.HasPrev }}<a class="page-link" href="{{ $paginator.Prev.URL }}">← Trước</a>{{ end }}
+    <span class="page-status">Trang {{ $paginator.PageNumber }} / {{ $paginator.TotalPages }}</span>
+    {{ if $paginator.HasNext }}<a class="page-link" href="{{ $paginator.Next.URL }}">Sau →</a>{{ end }}
+  </nav>
+  {{ end }}
+</section>
+{{ end }}

@@ -1,0 +1,53 @@
+baseURL: "https://hungson1002.github.io/Blog-Mang/"
+title: "Blog Lập Trình Mạng"
+theme: "PaperMod"
+defaultContentLanguage: vi
+languageCode: vi
+pagination:
+  pagerSize: 10
+
+params:
+  defaultTheme: auto   # auto / dark / light
+  showReadingTime: true
+  showShareButtons: false
+  showPostNavLinks: true
+  showBreadCrumbs: true
+  homeInfoParams:
+    Title: "Khám phá thế giới lập trình mạng cùng Java & JavaScript"
+    Content: >
+      <div class="hero-banner">
+        <div class="hero-content">
+          <h1 class="hero-title">Chào mừng đến với</h1>
+          <h2 class="hero-subtitle">Blog Lập Trình Mạng</h2>
+          <p class="hero-description">Nơi tổng hợp một số kiến thức cơ bản về lập trình mạng với Java & JavaScript</p>
+        </div>
+        <div class="hero-decoration">
+          <div class="floating-element element-1">☕</div>
+          <div class="floating-element element-2">⚡</div>
+          <div class="floating-element element-3">🌐</div>
+          <div class="floating-element element-4">💻</div>
+        </div>
+      </div>
+  customCSS:
+    - "css/custom.css"
+
+menu:
+  main:
+    - name: "Home"
+      url: "/"
+      weight: 1
+    - name: "Blog"
+      url: "/blog/"
+      weight: 2
+    - name: "Tags"
+      url: "/tags/"
+      weight: 3
+    - name: "Profile"
+      url: "/about/"
+      weight: 4
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+
